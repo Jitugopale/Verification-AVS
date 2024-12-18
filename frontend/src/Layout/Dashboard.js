@@ -4,7 +4,7 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js"; // JavaScript (includes Popp
 import "../css/Dashboard.css";
 import { useEffect } from "react";
 import Sidebar from "./Sidebar";
-import Navbar from "./Navbar";
+// import Navbar from "./Navbar";
 import Content from "./Content";
 import Cont from "../NewDash/Cont";
 import Slide from "../NewDash/Slide";
@@ -45,3 +45,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
