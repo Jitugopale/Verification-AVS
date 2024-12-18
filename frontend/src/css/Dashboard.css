@@ -29,7 +29,6 @@ a:focus {
     background: #fff;
     border: none;
     border-radius: 0;
-    margin-bottom: 40px;
     box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
 }
 
@@ -55,9 +54,13 @@ a:focus {
     width: 100%;
     align-items: stretch;
 }
+.navbar-brand{
+  margin-left: 20px;
+  font-size: 30px;
+}
 
 #sidebar {
-    min-width: 250px;
+    min-width: 275px;
     max-width: 250px;
     background: #7386D5;
     color: #fff;
@@ -66,11 +69,6 @@ a:focus {
 
 #sidebar.active {
     margin-left: -250px;
-}
-
-#sidebar .sidebar-header {
-    padding: 20px;
-    background: #6d7fcc;
 }
 
 #sidebar ul.components {

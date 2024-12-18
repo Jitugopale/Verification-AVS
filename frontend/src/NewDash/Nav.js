@@ -1,30 +1,25 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import { useEffect } from "react";
+import Logout from "../Pages/Authentication/Logout";
+import UserProfile from "../Pages/Authentication/UserProfile";
 
-const Navbar = () => {
-  useEffect(() => {
-    const sidebarCollapse = document.getElementById("sidebarCollapse");
-    const sidebar = document.getElementById("sidebar");
-
-    const toggleSidebar = () => {
-      sidebar.classList.toggle("active");
-    };
-
-    sidebarCollapse.addEventListener("click", toggleSidebar);
-
-    // Cleanup to remove event listener on component unmount
-    return () => {
-      sidebarCollapse.removeEventListener("click", toggleSidebar);
-    };
-  }, []);
-
+const Nav = () => {
   return (
     <>
       <nav className="navbar navbar-expand-lg navbar-light bg-light">
         <button type="button" id="sidebarCollapse" className="btn btn-info">
-          <i className="fas fa-align-left"></i>
+          <i className="fas fa-align-left" />
           <i className="bx bx-menu"></i>
+        </button>
+        <button
+          className="btn btn-dark d-inline-block d-lg-none ml-auto"
+          type="button"
+          data-toggle="collapse"
+          data-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <i className="fas fa-align-justify" />
         </button>
         <button
           className="navbar-toggler"
@@ -45,19 +40,12 @@ const Navbar = () => {
               </a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="#">
-                Features
+              <a className="nav-link mt-2" href="#">
+                Onboarding Solution
               </a>
             </li>
-            <li className="nav-item">
-              <a className="nav-link" href="#">
-                Pricing
-              </a>
-            </li>
-            <li className="nav-item">
-              <a className="nav-link disabled" href="#">
-                Disabled
-              </a>
+            <li className="nav-item" style={{marginLeft:'800px'}}>
+              <Logout/>
             </li>
           </ul>
         </div>
@@ -66,4 +54,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default Nav;

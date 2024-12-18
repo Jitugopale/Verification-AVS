@@ -1,50 +1,29 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { useState } from "react";
-import { useEffect } from "react";
+import React from 'react'
+import { Link } from 'react-router-dom'
+import { useState } from 'react';
 
-const Sidebar = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [PanSuiteisOpen, setPanIsOpen] = useState(false);
-  const [IdentityisOpen, setItentityIsOpen] = useState(false);
-
-  useEffect(() => {
-    const sidebarCollapse = document.getElementById("sidebarCollapse");
-    const sidebar = document.getElementById("sidebar");
-
-    if (sidebarCollapse && sidebar) {
-      const toggleSidebar = () => {
-        sidebar.classList.toggle("active");
+const Slide = () => {
+      const [isOpen, setIsOpen] = useState(false);
+      const [PanSuiteisOpen, setPanIsOpen] = useState(false);
+      const [IdentityisOpen, setItentityIsOpen] = useState(false);
+    
+    const toggleSubmenu = (e) => {
+        e.preventDefault();
+        setIsOpen((prevState) => !prevState);
       };
-
-      sidebarCollapse.addEventListener("click", toggleSidebar);
-
-      // Cleanup to remove event listener on component unmount
-      return () => {
-        sidebarCollapse.removeEventListener("click", toggleSidebar);
+    
+      const togglePanSuiteSubmenu = (e) => {
+        e.preventDefault();
+        setPanIsOpen((prevState) => !prevState);
       };
-    }
-  }, []);
-
-  const toggleSubmenu = (e) => {
-    e.preventDefault();
-    setIsOpen((prevState) => !prevState);
-  };
-
-  const togglePanSuiteSubmenu = (e) => {
-    e.preventDefault();
-    setPanIsOpen((prevState) => !prevState);
-  };
-
-  const toggleIdentitySubmenu = (e) => {
-    e.preventDefault();
-    setItentityIsOpen((prevState) => !prevState);
-  };
-  
-
+    
+      const toggleIdentitySubmenu = (e) => {
+        e.preventDefault();
+        setItentityIsOpen((prevState) => !prevState);
+      };
+      
   return (
     <>
-      {/* Sidebar  */}
       <nav id="sidebar">
         <ul className="list-unstyled components">
           <li>
@@ -88,7 +67,7 @@ const Sidebar = () => {
                   id="pageSubmenu"
                 >
                   <li>
-                    <Link to="#">PAN</Link>
+                    <Link to="/pan">PAN</Link>
                   </li>
                   <li>
                     <Link to="#">PAN DETAIL</Link>
@@ -157,7 +136,7 @@ const Sidebar = () => {
         </ul>
       </nav>
     </>
-  );
-};
+  )
+}
 
-export default Sidebar;
+export default Slide
