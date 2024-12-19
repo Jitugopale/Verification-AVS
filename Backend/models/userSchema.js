@@ -55,7 +55,7 @@ const UserSchema = new Schema({
         sparse:true
     },
   refid: {
-        type: String, // You can use String as the type for unique reference IDs
+        type: Number, // You can use String as the type for unique reference IDs
         required: false, // Make it optional if not always provided
         unique: true, // Ensures refid is unique
         sparse: true // Allows multiple null values

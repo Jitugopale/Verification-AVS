@@ -7,6 +7,8 @@ const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [PanSuiteisOpen, setPanIsOpen] = useState(false);
   const [IdentityisOpen, setItentityIsOpen] = useState(false);
+  const [CorporateisOpen, setCorporateIsOpen] = useState(false);
+
 
   useEffect(() => {
     const sidebarCollapse = document.getElementById("sidebarCollapse");
@@ -39,6 +41,11 @@ const Sidebar = () => {
   const toggleIdentitySubmenu = (e) => {
     e.preventDefault();
     setItentityIsOpen((prevState) => !prevState);
+  };
+
+  const toggleCorporateSubmenu = (e) => {
+    e.preventDefault();
+    setCorporateIsOpen((prevState) => !prevState);
   };
   
 
@@ -88,7 +95,7 @@ const Sidebar = () => {
                   id="pageSubmenu"
                 >
                   <li>
-                    <Link to="#">PAN</Link>
+                    <Link to="">PAN</Link>
                   </li>
                   <li>
                     <Link to="#">PAN DETAIL</Link>
@@ -127,9 +134,37 @@ const Sidebar = () => {
                 </ul>
               </li>
               {/* INDIVIDUAL IDENTIFY VERIFICATION */}
+              {/* CORPORATE VERIFICATION */}
               <li>
-                <Link to="#">CORPORATE VERIFICATION</Link>
+                <Link
+                  href="#pageSubmenu"
+                  onClick={toggleCorporateSubmenu}
+                  className="dropdown-toggle"
+                  aria-expanded={CorporateisOpen}
+                >
+                  INDIVIDUAL IDENTIFY VERIFICATION
+                  <i
+                    className={`bx ms-2 ${
+                      CorporateisOpen ? "bx-chevron-down" : "bx-chevron-right"
+                    }`}
+                  ></i>
+                </Link>
+                <ul
+                  className={`collapse list-unstyled ${CorporateisOpen ? "show" : ""}`}
+                  id="pageSubmenu"
+                >
+                  <li>
+                    <Link to="#">AADHAAR VERIFICATION</Link>
+                  </li>
+                  <li>
+                    <Link to="#">VOTER</Link>
+                  </li>
+                  <li>
+                    <Link to="#">PASSPORT ID</Link>
+                  </li>
+                </ul>
               </li>
+              {/* CORPORATE VERIFICATION */}
               <li>
                 <Link to="#">CREDIT CHECK</Link>
               </li>

@@ -300,6 +300,55 @@ export const verifyPanCardController = async (req, res) => {
 
 // verifying voter ID
 
+  // export const voterIdVerification = async (req, res) => {
+  //   const { refid, id_number } = req.body;
+  
+  //   if (!refid || !id_number) {
+  //       return res.status(400).json({ error: 'Both refid and id_number are required' });
+  //   }
+  
+  //   const reqid = Date.now(); 
+    
+  //   const payload = { 
+  //     timestamp: Math.floor(Date.now() / 1000), 
+  //     partnerId: partnerId, 
+  //     reqid: refid 
+  //   };
+    
+  //   const token = jwt.sign(payload, API_SECRET); 
+  //   console.log(partnerId) 
+  //   console.log(API_SECRET) 
+  //   console.log(token)
+  
+  //   try {
+  //       const response = await axios.post(
+  //           VerifyVoter,
+  //           { refid, id_number },  
+  //           {
+  //               headers: {
+  //                   'Content-Type': 'application/json',
+  //                   'Token': token,  
+
+  //                   // 'authorisedkey': authorisedkey,  
+  //                   'accept': 'application/json',
+  //                   'User-Agent': 'CORP0000363', 
+  
+  //               },
+  //           }
+  //       );
+  
+  //       res.status(200).json(response.data);
+  //   } catch (error) {
+  //       console.error('Error verifying Voter ID:', error.message);
+  
+  //       if (error.response) {
+  //           res.status(error.response.status).json(error.response.data); 
+  //       } else {
+  //           res.status(500).json({ error: 'Internal Server Error' }); 
+  //       }
+  //   }
+  // };
+
   export const voterIdVerification = async (req, res) => {
     const { refid, id_number } = req.body;
   
@@ -307,16 +356,18 @@ export const verifyPanCardController = async (req, res) => {
         return res.status(400).json({ error: 'Both refid and id_number are required' });
     }
   
-    const reqid = Date.now(); 
+    // const reqid = Date.now(); 
     
     const payload = { 
-      refid: refid, 
       timestamp: Math.floor(Date.now() / 1000), 
       partnerId: partnerId, 
-      reqid: reqid 
+      reqid: refid 
     };
     
     const token = jwt.sign(payload, API_SECRET); 
+    // console.log(partnerId) 
+    // console.log(API_SECRET) 
+    // console.log(token)
   
     try {
         const response = await axios.post(
@@ -326,14 +377,16 @@ export const verifyPanCardController = async (req, res) => {
                 headers: {
                     'Content-Type': 'application/json',
                     'Token': token,  
-                    'authorisedkey': authorisedkey,  
-                    'accept': 'application/json',  
-                    'User-Agent': 'CORP00001',
+
+                    // 'authorisedkey': authorisedkey,  
+                    'accept': 'application/json',
+                    'User-Agent': 'CORP0000363', 
+  
                 },
             }
         );
   
-        res.status(200).json(response.data);  
+        res.status(200).json(response.data);
     } catch (error) {
         console.error('Error verifying Voter ID:', error.message);
   
@@ -345,8 +398,6 @@ export const verifyPanCardController = async (req, res) => {
     }
   };
   
-
-
 //Verify Passport
 
   export const passportVerification = async (req, res) => {
@@ -356,13 +407,12 @@ export const verifyPanCardController = async (req, res) => {
         return res.status(400).json({ error: 'refid, id_number, and dob are required' });
     }
 
-    const reqid = Date.now(); 
+    // const reqid = Date.now(); 
 
     const payload = {
-        refid: refid,
         timestamp: Math.floor(Date.now() / 1000), 
         partnerId: partnerId, 
-        reqid: reqid, 
+        reqid: refid, 
     };
 
     const token = jwt.sign(payload, API_SECRET); 
@@ -375,8 +425,10 @@ export const verifyPanCardController = async (req, res) => {
                 headers: {
                     'Content-Type': 'application/json',
                     'Token': token, 
-                    'authorisedkey': authorisedkey, 
-                    'User-Agent': 'CORP00001', 
+                    // 'authorisedkey': authorisedkey, 
+                    'User-Agent': 'CORP0000363', 
+                    'accept': 'application/json',  
+
                 },
             }
         );
@@ -417,9 +469,9 @@ export const creditReportCheckController = async (req, res) => {
               headers: {
                   'Content-Type': 'application/json',
                   'Token': token,
-                  'authorisedkey': authorisedkey,
+                  // 'authorisedkey': authorisedkey,
                   'accept': 'application/json',
-                  'User-Agent': 'CORP00001',
+                  'User-Agent': 'CORP0000363',
               },
           }
       );
@@ -472,9 +524,9 @@ export const gstVerifyController = async (req, res) => {
         const headers = {
             'Content-Type': 'application/json',
             'Token': token,
-            'authorisedkey': authorisedkey,
+            // 'authorisedkey': authorisedkey,
             'accept': 'application/json',
-            'User-Agent': 'CORP00001',
+            'User-Agent': 'CORP0000363',
         };
 
         const response = await axios.post(
@@ -522,9 +574,9 @@ export const udyamAadhaarVerifyController = async (req, res) => {
         const headers = {
             'Content-Type': 'application/json',
             'Token': token,
-            'authorisedkey': authorisedkey, 
+            // 'authorisedkey': authorisedkey, 
             'accept': 'application/json',
-            'User-Agent': 'CORP00001'
+            'User-Agent': 'CORP0000363'
         };
 
         const response = await axios.post(
@@ -573,9 +625,9 @@ export const panDetailedInfoGetController = async (req, res) => {
         const headers = {
             'Content-Type': 'application/json',
             'Token': token,
-            'authorisedkey': authorisedkey,
+            // 'authorisedkey': authorisedkey,
             'accept': 'application/json',
-            'User-Agent': 'CORP00001'
+            'User-Agent': 'CORP0000363'
         };
 
         const response = await axios.post(

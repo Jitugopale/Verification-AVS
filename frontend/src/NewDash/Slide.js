@@ -6,6 +6,8 @@ const Slide = () => {
       const [isOpen, setIsOpen] = useState(false);
       const [PanSuiteisOpen, setPanIsOpen] = useState(false);
       const [IdentityisOpen, setItentityIsOpen] = useState(false);
+      const [CorporateisOpen, setCorporateIsOpen] = useState(false);
+      const [CreditisOpen, setCreditIsOpen] = useState(false);
     
     const toggleSubmenu = (e) => {
         e.preventDefault();
@@ -20,6 +22,16 @@ const Slide = () => {
       const toggleIdentitySubmenu = (e) => {
         e.preventDefault();
         setItentityIsOpen((prevState) => !prevState);
+      };
+
+      const toggleCorporateSubmenu = (e) => {
+        e.preventDefault();
+        setCorporateIsOpen((prevState) => !prevState);
+      };
+      
+      const toggleCreditSubmenu = (e) => {
+        e.preventDefault();
+        setCreditIsOpen((prevState) => !prevState);
       };
       
   return (
@@ -83,7 +95,7 @@ const Slide = () => {
                   className="dropdown-toggle"
                   aria-expanded={IdentityisOpen}
                 >
-                  INDIVIDUAL IDENTIFY VERIFICATION
+                  INDIVIDUAL IDENTIFY
                   <i
                     className={`bx ms-2 ${
                       IdentityisOpen ? "bx-chevron-down" : "bx-chevron-right"
@@ -106,12 +118,59 @@ const Slide = () => {
                 </ul>
               </li>
               {/* INDIVIDUAL IDENTIFY VERIFICATION */}
+              {/* CORPORATE VERIFICATION */}
               <li>
-                <Link to="#">CORPORATE VERIFICATION</Link>
+                <Link
+                  href="#pageSubmenu"
+                  onClick={toggleCorporateSubmenu}
+                  className="dropdown-toggle"
+                  aria-expanded={CorporateisOpen}
+                >
+                  CORPORATE VERIFICATION
+                  <i
+                    className={`bx ms-2 ${
+                      CorporateisOpen ? "bx-chevron-down" : "bx-chevron-right"
+                    }`}
+                  ></i>
+                </Link>
+                <ul
+                  className={`collapse list-unstyled ${CorporateisOpen ? "show" : ""}`}
+                  id="pageSubmenu"
+                >
+                  <li>
+                    <Link to="#">GST VERIFICATION</Link>
+                  </li>
+                  <li>
+                    <Link to="#">UDYAM AADHAAR</Link>
+                  </li>
+                </ul>
               </li>
+              {/* CORPORATE VERIFICATION */}
+              {/* CREDIT CHECK */}
               <li>
-                <Link to="#">CREDIT CHECK</Link>
+                <Link
+                  href="#pageSubmenu"
+                  onClick={toggleCreditSubmenu}
+                  className="dropdown-toggle"
+                  aria-expanded={CreditisOpen}
+                >
+                  CREDIT CHECK
+                  <i
+                    className={`bx ms-2 ${
+                      CreditisOpen ? "bx-chevron-down" : "bx-chevron-right"
+                    }`}
+                  ></i>
+                </Link>
+                <ul
+                  className={`collapse list-unstyled ${CreditisOpen ? "show" : ""}`}
+                  id="pageSubmenu"
+                >
+                  <li>
+                    <Link to="#">CREDIT REPORT EQUIFAX</Link>
+                  </li>
+                </ul>
               </li>
+              {/* CREDIT CHECK */}
             </ul>
           </li>
 
