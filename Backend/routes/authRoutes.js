@@ -13,6 +13,9 @@ import { creditReportCheckController } from '../controllers/authController.js';
 import { gstVerifyController } from '../controllers/authController.js';
 import { udyamAadhaarVerifyController } from '../controllers/authController.js';
 import { panDetailedInfoGetController } from '../controllers/authController.js';
+import { getVerificationCounts } from '../controllers/authController.js';
+import { updateVerificationCount } from '../controllers/authController.js';
+import { creditReportCheck } from '../controllers/authController.js';
 
 const router = express.Router()
 router.post('/createUser',[
@@ -49,11 +52,18 @@ router.post('/passport_verify', passportVerification);
 
 router.post('/credit_report_checker', creditReportCheckController);
 
+router.post('/credit_report', creditReportCheck);
+
 router.post('/gst_verify', gstVerifyController);
 
 router.post('/udyam_aadhaar_verify', udyamAadhaarVerifyController);
 
 router.post('/pandetails_verify', panDetailedInfoGetController);
+
+router.get('/verification-count', getVerificationCounts);
+
+router.post('/update-verification-count', updateVerificationCount);
+
 
 
 

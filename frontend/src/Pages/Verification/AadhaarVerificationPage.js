@@ -1,21 +1,44 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { jsPDF } from "jspdf"; // Import jsPDF for PDF generation
+import { jsPDF } from "jspdf";
 import "./AadharVerification.css";
 
-const AadhaarVerificationPage = () => {
-  const [aadhaarNumber, setAadhaarNumber] = useState("");
-  const [otp, setOtp] = useState("");
-  const [isOtpSent, setIsOtpSent] = useState(false);
-  const [isVerified, setIsVerified] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
-  const [aadhaarDetails, setAadhaarDetails] = useState(null);
+// Inline styles
+const containerStyle = {
+    maxHeight: "80vh",
+    overflowY: "auto",
+    overflowX: "auto",
+    border: "1px solid #ddd",
+    padding: "16px",
+    boxSizing: "border-box",
+  };
 
-  // Date range filtering
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [verifiedUsers, setVerifiedUsers] = useState([]);
+  const inputStyle = {
+    marginBottom: "10px",
+    padding: "8px",
+    width: "100%",
+    boxSizing: "border-box",
+  };
+
+  const buttonGroupStyle = {
+    display: "flex",
+    gap: "10px",
+    marginTop: "10px",
+  };
+
+const AadhaarVerificationPage = () => {
+    const [aadhaarNumber, setAadhaarNumber] = useState("");
+    const [otp, setOtp] = useState("");
+    const [isOtpSent, setIsOtpSent] = useState(false);
+    const [isVerified, setIsVerified] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
+    const [aadhaarDetails, setAadhaarDetails] = useState(null);
+  
+    // Date range filtering
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
+    const [verifiedUsers, setVerifiedUsers] = useState([]);
 
   // Fetch verified Aadhaar details (either all or based on date range)
   useEffect(() => {
@@ -30,7 +53,6 @@ const AadhaarVerificationPage = () => {
 
     fetchVerifiedUsers();
   }, [startDate, endDate]);
-
 
   const handleAdharPdf = (aadhaarDetails) => {
     const doc = new jsPDF();
@@ -131,6 +153,8 @@ const AadhaarVerificationPage = () => {
         {
           clientId: clientId,
           OTP: otp,
+          aadharNumber: aadhaarNumber,
+
         }
       );
 
@@ -216,22 +240,21 @@ const AadhaarVerificationPage = () => {
 
 
   return (
-    <>
-    <div className="aadhaar-verification">
-      <div className="verification-card">
-        <h1>Aadhaar Verification</h1>
-        <div className="form-group">
-          <label>Aadhaar Number:</label>
-          <input
-            type="text"
-            value={aadhaarNumber}
-            onChange={(e) => setAadhaarNumber(e.target.value)}
-            placeholder="Enter your Aadhaar number"
-            disabled={isOtpSent || isVerified}
-          />
-        </div>
+    <div style={containerStyle}>
+      <h1>Aadhaar Verification</h1>
+      <div>
+        <label>Aadhaar Number</label>
+        <input
+          type="text"
+          value={aadhaarNumber}
+          onChange={(e) => setAadhaarNumber(e.target.value)}
+          placeholder="Enter your Aadhaar number"
+          disabled={isOtpSent || isVerified}
+          style={inputStyle}
+        />
+      </div>
 
-        {isOtpSent && !isVerified && (
+      {isOtpSent && !isVerified && (
           <div className="form-group">
             <label>Enter OTP:</label>
             <input
@@ -239,88 +262,49 @@ const AadhaarVerificationPage = () => {
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
               placeholder="Enter the OTP"
+              style={inputStyle}
             />
           </div>
         )}
 
-        <div className="button-group">
+<       div className="button-group" style={buttonGroupStyle}>
           {!isOtpSent && !isVerified && <button onClick={handleSendOtp}>Send OTP</button>}
           {isOtpSent && !isVerified && <button onClick={handleVerifyOtp}>Verify OTP</button>}
         </div>
 
-        {isVerified && (
-          <div>
-            <p style={{ color: "green" }}>{successMessage}</p>
-            {aadhaarDetails && (
-              <div className="details-section">
-                <h3 style={{ textAlign: "center" }}>Aadhaar Details:</h3>
-                <div style={{ textAlign: "center" }}>
-                <img
-                    src={`data:image/jpeg;base64,${aadhaarDetails.profile_image}`}
-                    alt="Aadhaar Profile"
-                    style={{ width: "150px", height: "150px", borderRadius: "5%" }}
-                  />
-                </div>
-                <div
-                  style={{
-                    marginLeft: "15px",
-                    marginTop: "20px",
-                    border: "2px solid black",
-                    padding: "15px",
-                    backgroundColor: "#FFFACD",
-                    borderRadius: "8px",
-                    boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.1)",
-                    fontSize: "16px",
-                    width: "80%",
-                    margin: "0 auto",
-                  }}
-                >
-                  <p><strong>Aadhaar Number:</strong> {aadhaarDetails.aadhaar_number}</p>
-                  <p><strong>Name:</strong> {aadhaarDetails.full_name}</p>
-                  <p><strong>Gender:</strong> {aadhaarDetails.gender}</p>
-                  <p><strong>DOB:</strong> {aadhaarDetails.dob}</p>
-                  <p><strong>Address:</strong> {[
-                    aadhaarDetails.address.house,
-                    aadhaarDetails.address.street,
-                    aadhaarDetails.address.landmark,
-                    aadhaarDetails.address.loc,
-                    aadhaarDetails.address.po,
-                    aadhaarDetails.address.subdist,
-                    aadhaarDetails.address.dist,
-                    aadhaarDetails.address.state,
-                    aadhaarDetails.address.country,
-                    aadhaarDetails.address.zip,
-                  ].filter(Boolean).join(", ")}</p>
+      {isVerified && aadhaarDetails && (
+        <div>
+          <h3>Aadhaar Details</h3>
+          <img
+            src={`data:image/jpeg;base64,${aadhaarDetails.profile_image}`}
+            alt="Profile"
+            style={{ width: "150px" }}
+          />
+          <p>Name: {aadhaarDetails.full_name}</p>
+          <p>Gender: {aadhaarDetails.gender}</p>
+          <p>DOB: {aadhaarDetails.dob}</p>
+          <p>
+            Address:{" "}
+            {[
+              aadhaarDetails.address.house,
+              aadhaarDetails.address.street,
+              aadhaarDetails.address.dist,
+              aadhaarDetails.address.state,
+              aadhaarDetails.address.zip,
+            ]
+              .filter(Boolean)
+              .join(", ")}
+          </p>
+          <button onClick={() => handleAdharPdf(aadhaarDetails)}>
+            Download PDF
+          </button>
+        </div>
+      )}
+      {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
+      {successMessage && <p style={{ color: "green" }}>{successMessage}</p>}
 
-                  <button
-                    onClick={() => handleAdharPdf(aadhaarDetails)}
-                    style={{
-                      padding: "10px 20px",
-                      backgroundColor: "#4CAF50",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "5px",
-                      cursor: "pointer",
-                    }}
-                  >
-                    Download PDF
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
-        {successMessage && <p style={{ color: "green" }}>{successMessage}</p>}
-      </div>
-    </div>
-    {/* Verified Users Section - placed below the verification form */}
-      {/* Verified Users Section - placed below the verification form */}
-      <div className="verified-users-section container mt-5">
-  <h3>Verified Users</h3>
-  <div className="date-range-filter">
-    <div className="row mb-5">
+      <h3>Verified Users</h3>
+      <div className="row mb-5">
       <div className="col-md-2">
       <input
       type="date"
@@ -338,14 +322,15 @@ const AadhaarVerificationPage = () => {
     />
       </div>
     </div>
-    
-    
-  </div>
-  <table
-    className="verified-users-table"
-    style={{ width: "100%", borderCollapse: "collapse", border: "1px solid #ddd" }}
-  >
-    <thead>
+
+      <div
+    style={{
+      maxHeight: "400px", // Set the desired maximum height for the table container
+      overflowY: "auto", // Enable vertical scrolling
+      border: "1px solid #ddd", // Optional: Add a border to the container
+    }}>
+      <table>
+      <thead>
       <tr>
         <th style={{ padding: "8px", border: "1px solid #ddd", textAlign: "left" }}>Photo</th>
         <th style={{ padding: "8px", border: "1px solid #ddd", textAlign: "left" }}>
@@ -361,8 +346,8 @@ const AadhaarVerificationPage = () => {
         <th style={{ padding: "8px", border: "1px solid #ddd", textAlign: "left" }}>Action</th>
       </tr>
     </thead>
-    <tbody>
-    {verifiedUsers
+        <tbody>
+        {verifiedUsers
   .filter((user) => {
     const userVerificationDate = new Date(user.verificationDate);
     let isInDateRange = true;
@@ -435,10 +420,10 @@ const AadhaarVerificationPage = () => {
       </td>
     </tr>
   ))}
-
-    </tbody>
-  </table>
-  <button 
+        </tbody>
+      </table>
+    </div>
+      <button 
   onClick={() => {
     localStorage.clear(); // Clears all data from localStorage
     alert("All local storage data has been cleared!");
@@ -454,10 +439,7 @@ const AadhaarVerificationPage = () => {
 >
   Clear All Data
 </button>
-
-</div>
-
-    </>
+    </div>
   );
 };
 

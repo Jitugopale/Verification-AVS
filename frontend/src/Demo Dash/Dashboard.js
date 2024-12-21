@@ -3,7 +3,10 @@ import "bootstrap/dist/css/bootstrap.min.css"; // CSS
 import "bootstrap/dist/js/bootstrap.bundle.min.js"; // JavaScript (includes Popper.js)
 import "../css/Dashboard.css";
 import { useEffect } from "react";
+import Pan from "../Pages/Verification/PancardVerificationPage"; // Import the Pan component
+import Aadhaar from "../Pages/Verification/PancardVerificationPage"; // Import the Aadhaar component
 import Sidebar from "./Sidebar";
+
 import ApiVerification from '../Demo Dash/ApiVerification'
 // import Navbar from "./Navbar";
 import Content from "./Content";
@@ -16,10 +19,25 @@ const Dashboard = () => {
   const [view, setView] = useState('dashboard');
   const [activeMenu, setActiveMenu] = useState('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [activeComponent, setActiveComponent] = useState(null);
+  
 
-    const handleMenuClick = (menu) => {
-    setActiveMenu(menu);
-    setView(menu);
+  const handleSubmenuClick = (item) => {
+    setSelectedSubmenu(item); // Set the selected submenu item
+    setSubmenuHistory((prevHistory) => [...prevHistory, submenu]); // Push current submenu to history
+    switch (item) {
+      case "PAN":
+        setActiveComponent(<Pan />);
+        break;
+      case "AADHAAR VERIFICATION":
+        setActiveComponent(<Aadhaar />);
+        break;
+      default:
+        setActiveComponent(<p>{item} content will be here...</p>);
+        break;
+    }
+  };
+;
   };
   useEffect(() => {
     const sidebarCollapse = document.getElementById("sidebarCollapse");
@@ -87,19 +105,26 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="d-flex flex-column flex-md-row vh-100">
-      {/* Sidebar */}
-      <Sidebar
-        isSidebarOpen={isSidebarOpen}
-        handleToggleSidebar={handleToggleSidebar}
-        activeMenu={activeMenu}
-        handleMenuClick={handleMenuClick}
-      />
+    <div className="bg-white p-4 rounded shadow d-flex" style={{ height: "100%", flexDirection: "row" }}>
+      
+      {/* Submenu */}
+      {submenu.length > 0 && activeComponent === null && (
+        <div className="submenu ms-3">
+           
 
-      {/* Main Content */}
-      <main className="flex-grow-1 bg-light p-4">
-        {renderMainContent()}
-      </main>
+            {submenu.map((item) => (
+              <li key={item} className="mb-2">
+                <button
+                  onClick={() => handleSubmenuClick(item)}
+                >
+                  {item}
+                </button>
+              </li>
+            ))}
+        </div>
+      )}
+
+      
     </div>
   );
 };

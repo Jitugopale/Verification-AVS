@@ -3,9 +3,10 @@ import "bootstrap/dist/css/bootstrap.min.css"; // CSS
 import "bootstrap/dist/js/bootstrap.bundle.min.js"; // JavaScript (includes Popper.js)
 import "../css/Dashboard.css";
 import { useEffect } from "react";
-import Sidebar from "./Sidebar";
+import { Outlet } from "react-router-dom";
+// import Sidebar from "./Sidebar";
 // import Navbar from "./Navbar";
-import Content from "./Content";
+// import Content from "./Content";
 import Cont from "../NewDash/Cont";
 import Slide from "../NewDash/Slide";
 import Nav from "../NewDash/Nav";
@@ -34,10 +35,7 @@ const Dashboard = () => {
     {/* Sidebar  */}
     <Slide/>
     {/* Page Content  */}
-    <Cont/>
-  </div><div className="wrapper">
-    {/* Sidebar  */}
-    
+    <Outlet/>
   </div>
 
     </>
@@ -45,4 +43,5 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
 

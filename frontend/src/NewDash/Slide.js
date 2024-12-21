@@ -39,7 +39,7 @@ const Slide = () => {
       <nav id="sidebar">
         <ul className="list-unstyled components">
           <li>
-            <Link to="#">Dashboard</Link>
+            <Link to="/dashboard">Dashboard</Link>
           </li>
           <li>
             <Link
@@ -79,10 +79,10 @@ const Slide = () => {
                   id="pageSubmenu"
                 >
                   <li>
-                    <Link to="/pan">PAN</Link>
+                    <Link to="pan">PAN</Link>
                   </li>
                   <li>
-                    <Link to="#">PAN DETAIL</Link>
+                    <Link to="pandetail">PAN DETAIL</Link>
                   </li>
                 </ul>
               </li>
@@ -107,13 +107,13 @@ const Slide = () => {
                   id="pageSubmenu"
                 >
                   <li>
-                    <Link to="#">AADHAAR VERIFICATION</Link>
+                    <Link to="aadhaar">AADHAAR VERIFICATION</Link>
                   </li>
                   <li>
-                    <Link to="#">VOTER</Link>
+                    <Link to="voter">VOTER</Link>
                   </li>
                   <li>
-                    <Link to="#">PASSPORT ID</Link>
+                    <Link to="passport">PASSPORT ID</Link>
                   </li>
                 </ul>
               </li>
@@ -138,10 +138,10 @@ const Slide = () => {
                   id="pageSubmenu"
                 >
                   <li>
-                    <Link to="#">GST VERIFICATION</Link>
+                    <Link to="gst">GST VERIFICATION</Link>
                   </li>
                   <li>
-                    <Link to="#">UDYAM AADHAAR</Link>
+                    <Link to="udyam">UDYAM AADHAAR</Link>
                   </li>
                 </ul>
               </li>

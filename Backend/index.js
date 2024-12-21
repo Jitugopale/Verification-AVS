@@ -34,6 +34,7 @@ app.use('/api/credit', router);
 app.use('/api/gst', router);
 app.use('/api/udyam', router);
 app.use('/api/pandetail', router);
+app.use('/api/count', router);
 
 app.get('/', (req, res) => {
   res.send('<h1>Server is running</h1>');
