@@ -212,8 +212,8 @@ const Register = () => {
     setLoading(true); 
     try {
       const response = await axios.post(
-        // http://192.168.20.151:5000/api/auth/createUser
-        "http://localhost:5000/api/auth/createUser",
+        // http://192.168.20.151:4000/api/auth/createUser
+        "http://192.168.20.151:4000/api/auth/createUser",
         formData
       );
 

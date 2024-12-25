@@ -23,7 +23,7 @@ function UserProfile() {
         }
 
         // Send the token to fetch user data
-        const response = await axios.get('http://localhost:5000/api/auth/getuser', {
+        const response = await axios.get('http://192.168.20.151:4000/api/auth/getuser', {
           headers: {
             'auth-token': token, // Send token in 'auth-token' header as required by fetchuser middleware
           },
@@ -185,7 +185,7 @@ const styles = {
   },
   fileInput: {
     marginTop: '10px',
-    marginLeft: '200px',
+    // marginLeft: '200px',
   },
   uploadedPhoto: {
     width: '100px',
@@ -224,7 +224,7 @@ const modalStyles = {
     bottom: 'auto',
     transform: 'translate(-50%, -50%)',
     padding: '20px',
-    width: '300px',
+    width: '400px',
     backgroundColor: '#fff', // Set a background color
     borderRadius: '10px',
     boxShadow: '0 4px 10px rgba(0, 0, 0, 0.5)',

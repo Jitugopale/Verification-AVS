@@ -5,7 +5,23 @@ import UserProfile from "../Pages/Authentication/UserProfile";
 const Nav = () => {
   return (
     <>
-      <nav className="navbar navbar-expand-lg navbar-light bg-light">
+    <style>
+  {`
+    @media (max-width: 576px) {
+      .hidden-on-mobile, .logout-container {
+        display: none;
+      }
+      .height {
+        max-height: 70px;
+      }
+      .btn-info{
+      max-height: 40px
+      }
+    }
+  `}
+</style>
+
+      {/* <nav className="navbar navbar-expand-lg navbar-light bg-light">
         <button type="button" id="sidebarCollapse" className="btn btn-info">
           <i className="fas fa-align-left" />
           <i className="bx bx-menu"></i>
@@ -48,6 +64,34 @@ const Nav = () => {
               <Logout/>
             </li>
           </ul>
+        </div>
+      </nav> */}
+      <nav className="container-fluid navbar navbar-expand-lg navbar-light bg-light height">
+        <div className="d-flex">
+          <button type="button" id="sidebarCollapse" className="btn btn-info">
+            <i className="fas fa-align-left" />
+            <i className="bx bx-menu"></i>
+        </button>
+        <div>
+          <ul className="navbar-nav">
+            <li className="nav-item active">
+              <a className="navbar-brand" href="https://avsinsotech.com/">
+                AVS Verify
+              </a>
+            </li>
+            <li className="nav-item hidden-on-mobile">
+              <a className="nav-link mt-2 text" href="#">
+                Onboarding Solution
+              </a>
+            </li>
+            <li className="nav-item hidden-on-mobile" style={{marginLeft:'820px',marginTop:'10px'}}>
+              <Logout/>
+            </li>
+            <li className="nav-item hidden-on-mobile">
+              <UserProfile/>
+            </li>
+          </ul>
+        </div>
         </div>
       </nav>
     </>

@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { useState } from 'react';
+import Logout from '../Pages/Authentication/Logout';
 
 const Slide = () => {
       const [isOpen, setIsOpen] = useState(false);
@@ -166,7 +167,7 @@ const Slide = () => {
                   id="pageSubmenu"
                 >
                   <li>
-                    <Link to="#">CREDIT REPORT EQUIFAX</Link>
+                    <Link to="credit">CREDIT REPORT EQUIFAX</Link>
                   </li>
                 </ul>
               </li>
@@ -191,6 +192,9 @@ const Slide = () => {
           </li>
           <li>
             <Link to="#">Complaint</Link>
+          </li>
+          <li style={{marginLeft:'70px'}} className='mt-2'>
+            <Logout/>
           </li>
         </ul>
       </nav>

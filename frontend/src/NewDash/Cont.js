@@ -1,11 +1,75 @@
 import React from 'react'
+import axios from "axios";
 import SlidingCardCarousel from '../SlidingCard/SlidingCardCarousel'
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import { Bar } from 'react-chartjs-2';
+import { useState, useEffect } from "react";
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+
 
 const Cont = () => {
+  const [chartData, setChartData] = useState({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Fetch the data from the API
+    const fetchData = async () => {
+      try {
+        const response = await axios.get('http://192.168.20.151:4000/api/count//verification-count');
+        const data = response.data;
+
+        // Prepare chart data
+        setChartData({
+          labels: ['Pancard', 'Aadhar', 'Udyan Card', 'Pan Detail', 'Voter', 'Passport', 'Credit', 'GST'],
+          datasets: [
+            {
+              label: 'Verification Count',
+              data: [
+                data.pancard,
+                data.aadhar,
+                data.udyancard,
+                data.pandetail,
+                data.voter,
+                data.passport,
+                data.credit,
+                data.gst,
+              ],
+              backgroundColor: [
+                '#FF6384',
+                '#36A2EB',
+                '#FFCE56',
+                '#4BC0C0',
+                '#9966FF',
+                '#FF9F40',
+                '#E7E9ED',
+                '#36A2EB',
+              ],
+            },
+          ],
+        });
+
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching chart data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
     <>
       <div id="content">
-       <div className="dashboard-view">
+       <div className="dashboard-view text-center">
           <div className="d-flex flex-column flex-md-row align-items-center justify-content-between p-3 bg-white shadow rounded">
             <div>
               <h4>Hi, WALMIK DARADE</h4>
@@ -23,14 +87,16 @@ const Cont = () => {
           <div className="mt-4">
             <h5>Average API Hit</h5>
             <div className="bg-light rounded p-4 shadow">
-              <p>Chart placeholder</p>
+              <div className="bg-light rounded p-4 shadow">
+                {loading ? <p>Loading chart...</p> : <Bar data={chartData} />}
+              </div>
             </div>
           </div>
           <div className="mt-4">
             <h5>Most Utilized API's</h5>
-            <div className="bg-light rounded p-4 shadow">
-              <p>Chart placeholder</p>
-            </div>
+              <div className="bg-light rounded p-4 shadow">
+                {loading ? <p>Loading chart...</p> : <Bar data={chartData} />}
+              </div>
           </div>
         </div>
     </div>

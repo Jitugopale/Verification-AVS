@@ -6,6 +6,7 @@ import Adhar from "../models/AadhaarSchema.js"
 import User from "../models/userSchema.js"
 import Pan from "../models/PanSchema.js"
 import GST from "../models/GSTSchema.js"
+import CREDIT from "../models/CreditSchema.js"
 import VOTER from "../models/VoterSchema.js"
 import PanDetail from "../models/PanDetailSchema.js";
 import Passport from "../models/PassportSchema.js"
@@ -13,7 +14,7 @@ import Udyam from "../models/UdyamSchema.js"
 import VerificationCount from "../models/VerificationCount.js"
 import axios from 'axios';
 dotenv.config();
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET ||'Romanisagood$boy';
 const SendOTP= process.env.SendOTP;
 const VerifyOTP=process.env.VerifyOTP;
 const Agent = process.env.Agent;
@@ -28,6 +29,7 @@ const VerifyPanDetails = process.env.VerifyPanDetails;
 const partnerId = process.env.partnerId;
 const API_SECRET = process.env.API_SECRET;
 const Check = process.env.Check;
+
 
 //Create User
 export const createUserController =  async (req, res) => {
@@ -130,13 +132,13 @@ export const aadhaarOtpController = async (req, res) => {
     console.log(token)
 
     const otpResponse = await axios.post(
-      SendOTP,
+      'https://api.verifya2z.com/api/v1/verification/aadhaar_sendotp',
       { id_number: aadharNumber },
       {
         headers: {
           'Token': token,
           // 'Authorization': `Bearer ${token}` ,
-          'User-Agent': Agent,
+          'User-Agent': 'CORP0000363',
         }
       }
     );
@@ -166,11 +168,11 @@ export const aadhaarOtpController = async (req, res) => {
 
 function createToken() {
   const secretKey = process.env.secretKey;
-  const symmetricKey = Buffer.from(secretKey, 'utf8');
+  const symmetricKey = Buffer.from('UTA5U1VEQXdNREF6TmpOUFZHc3lUMVJuZWs1cVFYbE5VVDA5', 'utf8');
   const unixTimeStamp = Math.floor(Date.now() / 1000);
 
   const token = jwt.sign(
-    { timestamp: unixTimeStamp, partnerId: Agent, reqid: '1111' },
+    { timestamp: unixTimeStamp, partnerId: 'CORP0000363', reqid: '1111' },
     symmetricKey,
     { algorithm: 'HS256', expiresIn: '1h' }
   );
@@ -193,7 +195,7 @@ export const verifyAadhaarOtpController = async (req, res) => {
     }
 
     const secretKey = process.env.secretKey; 
-    jwt.verify(token, Buffer.from(secretKey, 'utf8'), (err, decoded) => {
+    jwt.verify(token, Buffer.from('UTA5U1VEQXdNREF6TmpOUFZHc3lUMVJuZWs1cVFYbE5VVDA5', 'utf8'), (err, decoded) => {
       if (err) {
         return res.status(401).json({ message: "Signature verification failed" });
       }
@@ -212,12 +214,12 @@ export const verifyAadhaarOtpController = async (req, res) => {
 async function verifyOtp(clientId, OTP, token,aadharNumber, res) {
   try {
     const otpVerifyResponse = await axios.post(
-      VerifyOTP,
+      'https://api.verifya2z.com/api/v1/verification/aadhaar_verifyotp',
       { client_id: clientId, otp: OTP },
       {
         headers: {
           'Token': token,  
-          'User-Agent': Agent
+          'User-Agent': 'CORP0000363'
         }
       }
     );
@@ -361,15 +363,15 @@ async function verifyOtp(clientId, OTP, token,aadharNumber, res) {
 
     const payload = { 
       timestamp: Math.floor(Date.now() / 1000), 
-      partnerId: partnerId, 
+      partnerId: 'CORP0000363', 
       reqid: "748374637" 
     };
     
-    const token = jwt.sign(payload, API_SECRET); 
+    const token = jwt.sign(payload, 'UTA5U1VEQXdNREF6TmpOUFZHc3lUMVJuZWs1cVFYbE5VVDA5'); 
   
     try {
         const response = await axios.post(
-            VerifyVoter,
+            'https://api.verifya2z.com/api/v1/verification/voter_verify',
             { id_number },  
             {
                 headers: {
@@ -455,15 +457,15 @@ async function verifyOtp(clientId, OTP, token,aadharNumber, res) {
 
     const payload = {
         timestamp: Math.floor(Date.now() / 1000), 
-        partnerId: partnerId, 
+        partnerId: 'CORP0000363', 
         reqid: "873487378", 
     };
 
-    const token = jwt.sign(payload, API_SECRET); 
+    const token = jwt.sign(payload, 'UTA5U1VEQXdNREF6TmpOUFZHc3lUMVJuZWs1cVFYbE5VVDA5'); 
 
     try {
         const response = await axios.post(
-          VerifyPassport,
+          'https://api.verifya2z.com/api/v1/verification/passport_verify',
             { id_number, dob },
             {
                 headers: {
@@ -530,23 +532,33 @@ async function verifyOtp(clientId, OTP, token,aadharNumber, res) {
 //Verify Credit
 
 export const creditReportCheckController = async (req, res) => {
-  const { refid, name, mobile, document_id, date_of_birth, address, pincode } = req.body;
+  const {name, mobile, document_id, date_of_birth, address, pincode } = req.body;
 
-  if (!refid || !name || !mobile || !document_id) {
-      return res.status(400).json({ error: 'refid, name, mobile, and document_id are required' });
+  if (!name || !mobile || !document_id || !date_of_birth || !address || !pincode) {
+    return res.status(400).json({ error: 'Missing required fields' });
+}
+
+  // Check if CREDIT already exists in the database
+  const existingCredit = await CREDIT.findOne({ document_id });
+  if (existingCredit) {
+      return res.status(200).json({
+          status: 'success',
+          message: 'CREDIT is already verified.',
+          verifiedData: existingCredit.verifiedData, // Returning existing verified data
+      });
   }
 
   const payload = {
       timestamp: Math.floor(Date.now() / 1000),
-      partnerId: partnerId,
-      reqid: refid,
+      partnerId: 'CORP0000363',
+      reqid: "5436456",
   };
-  const token = jwt.sign(payload, API_SECRET);
+  const token = jwt.sign(payload, 'UTA5U1VEQXdNREF6TmpOUFZHc3lUMVJuZWs1cVFYbE5VVDA5');
 
   try {
       const response = await axios.post(
-          VerifyCredit,
-          { refid, name, mobile, document_id, date_of_birth, address, pincode },
+          'https://api.verifya2z.com/api/v1/verification/credit_report_checker',
+          { name, mobile, document_id, date_of_birth, address, pincode },
           {
               headers: {
                   'Content-Type': 'application/json',
@@ -559,6 +571,43 @@ export const creditReportCheckController = async (req, res) => {
       );
 
       res.status(200).json(response.data);
+
+      const formatDateAndTime = (isoString) => {
+        const date = new Date(isoString);
+
+        // Format the date as "DD-MM-YYYY"
+        const formattedDate = date.toLocaleDateString('en-GB', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+        });
+
+        // Format the time as "hh:mm AM/PM"
+        const formattedTime = date.toLocaleTimeString('en-US', {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true,
+        });
+
+        return { formattedDate, formattedTime };
+      };
+
+      // Get the current date and time
+      const currentDateTime = new Date();
+      const { formattedDate, formattedTime } = formatDateAndTime(currentDateTime);
+
+      // Save the verified CREDIT details to the database
+      const newCredit = new CREDIT({
+        document_id,
+        status: 'verified',
+        createdAt: currentDateTime, // ISO timestamp
+        formattedDate, // "DD-MM-YYYY"
+        formattedTime, // "hh:mm AM/PM"
+        verifiedData: response.data, // Store response data in verifiedData field
+      });
+
+      await newCredit.save();
+      await updateVerificationCount('credit');
   } catch (error) {
       console.error('Error fetching credit report:', error.message);
 
@@ -595,12 +644,12 @@ export const gstVerifyController = async (req, res) => {
 
     const payload = {
         timestamp: Math.floor(Date.now() / 1000),
-        partnerId: partnerId,
+        partnerId: 'CORP0000363',
         reqid: "7767267",
     };
     
 
-    const token = jwt.sign(payload, API_SECRET); 
+    const token = jwt.sign(payload, 'UTA5U1VEQXdNREF6TmpOUFZHc3lUMVJuZWs1cVFYbE5VVDA5'); 
 
     try {
         const apiPayload = {
@@ -616,7 +665,7 @@ export const gstVerifyController = async (req, res) => {
         };
 
         const response = await axios.post(
-          VerifyGST,
+          'https://api.verifya2z.com/api/v1/verification/gst_verify',
             apiPayload,
             { headers }
         );
@@ -693,11 +742,11 @@ export const udyamAadhaarVerifyController = async (req, res) => {
 
     const payload = {
         timestamp: Math.floor(Date.now() / 1000),
-        partnerId: partnerId,
+        partnerId: 'CORP0000363',
         reqid: "37659138",
     };
 
-    const token = jwt.sign(payload, API_SECRET);
+    const token = jwt.sign(payload, 'UTA5U1VEQXdNREF6TmpOUFZHc3lUMVJuZWs1cVFYbE5VVDA5');
 
     try {
         const apiPayload = {
@@ -713,7 +762,7 @@ export const udyamAadhaarVerifyController = async (req, res) => {
         };
 
         const response = await axios.post(
-          VerifyUdyam,
+          'https://api.verifya2z.com/api/v1/verification/udyam_aadhaar_verify_v2',
             apiPayload,
             { headers }
         );
@@ -792,11 +841,11 @@ export const panDetailedInfoGetController = async (req, res) => {
 
   const payload = {
       timestamp: Math.floor(Date.now() / 1000),
-      partnerId: partnerId,
+      partnerId: 'CORP0000363',
       reqid: "123456",
   };
 
-  const token = jwt.sign(payload, API_SECRET);
+  const token = jwt.sign(payload, 'UTA5U1VEQXdNREF6TmpOUFZHc3lUMVJuZWs1cVFYbE5VVDA5');
 
   try {
       const apiPayload = {
@@ -810,7 +859,7 @@ export const panDetailedInfoGetController = async (req, res) => {
           'User-Agent': 'CORP0000363',
       };
 
-      const response = await axios.post(VerifyPanDetails, apiPayload, { headers });
+      const response = await axios.post('https://api.verifya2z.com/api/v1/verification/pandetails_verify', apiPayload, { headers });
 
       if (response.data.statuscode === 200 && response.data.status === true) {
           console.log(response.data);
@@ -929,12 +978,12 @@ export const verifyPanCardController = async (req, res) => {
 
     // Make the API request to verify PAN card
     const response = await axios.post(
-      PanVerify,
+      'https://api.verifya2z.com/api/v1/verification/pan_verify',
       { pannumber },
       {
         headers: {
           Token: token,
-          'User-Agent': Agent,
+          'User-Agent': 'CORP0000363',
         },
       }
     );
@@ -1049,10 +1098,10 @@ export const creditReportCheck = async (req, res) => {
   const reqid = `REQ-${Math.floor(Date.now() / 1000)}`; // Generate a unique reqid
   const payload = {
     timestamp: Math.floor(Date.now() / 1000),
-    partnerId: partnerId,
+    partnerId: 'CORP0000363',
     reqid: reqid, // Include reqid in the payload
   };
-  const token = jwt.sign(payload, API_SECRET);
+  const token = jwt.sign(payload, 'UTA5U1VEQXdNREF6TmpOUFZHc3lUMVJuZWs1cVFYbE5VVDA5');
 
   try {
     console.log('Outgoing request:', {
@@ -1088,3 +1137,35 @@ export const creditReportCheck = async (req, res) => {
     }
   }
 };
+
+
+
+export const getVerifiedUsers = async (req, res) => {
+  try {
+    // Get the clientId from the query parameter
+    const { aadharNumber } = req.body;
+
+    // If clientId is not provided, return an error message
+    if (!aadharNumber) {
+      return res.status(400).json({ message: 'Client ID is required' });
+    }
+
+    // Fetch verified users for the given clientId
+    const verifiedUsers = await Adhar.find({
+      aadharNumber: aadharNumber,
+      status: 'verified',
+    });
+
+    // If no verified users are found, return a 404 message
+    if (!verifiedUsers || verifiedUsers.length === 0) {
+      return res.status(404).json({ message: 'No verified users found for this clientId' });
+    }
+
+    // Return the found verified users
+    return res.status(200).json({verifiedUsers});
+  } catch (error) {
+    console.error('Error fetching verified users:', error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
