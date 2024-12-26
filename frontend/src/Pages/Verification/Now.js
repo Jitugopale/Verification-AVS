@@ -3,6 +3,8 @@
 
 import React, { useState } from 'react';
 import axios from 'axios';
+import ReactJson from 'react-json-view';
+
 import { jsPDF } from 'jspdf';
 
 const CreditVerificationPage = () => {
@@ -16,12 +18,34 @@ const CreditVerificationPage = () => {
   });
   const [responseData, setResponseData] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [isVerified, setIsVerified] = useState(false);
-
   const [error, setError] = useState('');
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const renderJson = (data) => {
+    if (typeof data === 'object' && !Array.isArray(data)) {
+      return (
+        <ul style={{ listStyleType: 'none', paddingLeft: '20px' }}>
+          {Object.entries(data).map(([key, value]) => (
+            <li key={key}>
+              <strong>{key}:</strong> {renderJson(value)}
+            </li>
+          ))}
+        </ul>
+      );
+    } else if (Array.isArray(data)) {
+      return (
+        <ul style={{ listStyleType: 'circle', paddingLeft: '20px' }}>
+          {data.map((item, index) => (
+            <li key={index}>{renderJson(item)}</li>
+          ))}
+        </ul>
+      );
+    } else {
+      return <span>{String(data)}</span>;
+    }
   };
 
   const handleVerify = async () => {
@@ -137,126 +161,26 @@ const CreditVerificationPage = () => {
         </button>
       </div>
       {error && <p style={{ color: 'red' }}>{error}</p>}
-      {!isVerified &&responseData && (
-  <div className="container mt-5 d-flex justify-content-center">
-    <div
-      className="card shadow-lg p-4" 
+      {responseData && (
+  <div>
+    <h2>Verification Result</h2>
+    <div style={{ padding: '10px', backgroundColor: '#f9f9f9', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)' }}>
+      {renderJson(responseData)}
+    </div>
+    <button
+      onClick={generatePDF}
       style={{
-        borderRadius: "10px",
-        backgroundColor: "#f8f9fa",
-        width: "800px",
-        height:'610px',
-        overflowY: "auto", // Enable vertical scrolling
-
+        marginTop: '20px',
+        padding: '10px 20px',
+        backgroundColor: '#007BFF',
+        color: '#fff',
+        border: 'none',
+        borderRadius: '4px',
+        cursor: 'pointer',
       }}
     >
-      <table
-        className="table table-bordered"
-        style={{ fontSize: "16px" }}
-      >
-        <thead>
-          <tr>
-            <th
-              colSpan="2"
-              className="text-center"
-              style={{
-                fontSize: "28px",
-                fontWeight: "bold",
-                color: "#686868",
-              }}
-            >
-              VERIFICATION DETAILS
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style={{ fontWeight: "bold", textAlign: "left" }}>Status :</td>
-            <td
-              style={{
-                textAlign: "left",
-                color: responseData.status ? "green" : "red",
-              }}
-            >
-              {responseData.status ? "Verified" : "Not Verified"}
-            </td>
-          </tr>
-          <tr>
-            <td style={{ fontWeight: "bold", textAlign: "left" }}>Id Number :</td>
-            <td style={{ textAlign: "left" }}>
-              {responseData.verifiedData?.data?.idNumber}
-            </td>
-          </tr>
-          <tr>
-            <td style={{ fontWeight: "bold", textAlign: "left" }}>First Name :</td>
-            <td style={{ textAlign: "left" }}>
-              {responseData.verifiedData?.data?.firstName}
-            </td>
-          </tr>
-          <tr>
-            <td style={{ fontWeight: "bold", textAlign: "left" }}>Middle Name :</td>
-            <td style={{ textAlign: "left" }}>
-              {responseData.verifiedData?.data?.middleName}
-            </td>
-          </tr>
-          <tr>
-            <td style={{ fontWeight: "bold", textAlign: "left" }}>Last Name :</td>
-            <td style={{ textAlign: "left" }}>
-              {responseData.verifiedData?.data?.lastName}
-            </td>
-          </tr>
-          <tr>
-            <td style={{ fontWeight: "bold", textAlign: "left" }}>Full Name :</td>
-            <td style={{ textAlign: "left" }}>
-              {responseData.verifiedData?.data?.fullName || "N/A"}
-            </td>
-          </tr>
-          <tr>
-            <td style={{ fontWeight: "bold", textAlign: "left" }}>PAN Status :</td>
-            <td style={{ textAlign: "left" }}>
-              {responseData.verifiedData?.data?.panStatus || "N/A"}
-            </td>
-          </tr>
-          <tr>
-            <td style={{ fontWeight: "bold", textAlign: "left" }}>Category :</td>
-            <td style={{ textAlign: "left" }}>
-              {responseData.verifiedData?.data?.category || "N/A"}
-            </td>
-          </tr>
-          <tr>
-            <td style={{ fontWeight: "bold", textAlign: "left" }}>
-              Aadhaar Seeding Status :
-            </td>
-            <td style={{ textAlign: "left" }}>
-              {responseData.verifiedData?.data?.aadhaarSeedingStatus}
-            </td>
-          </tr>
-          {/* <tr>
-            <td style={{ fontWeight: "bold", textAlign: "left" }}>
-              Verification Date :
-            </td>
-            <td style={{ textAlign: "left" }}>
-              {responseData.formattedDate}
-            </td>
-          </tr> */}
-        </tbody>
-      </table>
-
-      <div className="text-center mt-4">
-        <button
-        onClick={generatePDF}
-          className="btn btn-success btn-lg"
-          style={{
-            fontSize: "16px",
-            padding: "12px 20px",
-            borderRadius: "5px",
-            boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-          }}
-        >
-          Download PDF
-        </button>
-      </div>
-    </div>
+      Generate PDF
+    </button>
   </div>
 )}
     </div>

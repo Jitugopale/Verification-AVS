@@ -176,10 +176,10 @@ const Slide = () => {
           </li>
 
           <li>
-            <Link to="#">Reports</Link>
+            <Link to="main">Reports</Link>
           </li>
           <li>
-            <Link to="#">My Services</Link>
+            <Link to="loan">My Services</Link>
           </li>
           <li>
             <Link to="#">Settings</Link>

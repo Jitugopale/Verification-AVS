@@ -71,6 +71,8 @@ const PancardVerificationPage = ({
 //     doc.save("PAN_Verification_Report.pdf");
 //   }
 // };
+
+
 const generatePDF = () => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth(); // Page width

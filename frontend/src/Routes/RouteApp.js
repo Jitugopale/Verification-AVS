@@ -16,6 +16,8 @@ import PassportVerification from "../Pages/Verification/PassportVerification";
 import Logout from "../Pages/Authentication/Logout";
 import UserProfile from "../Pages/Authentication/UserProfile";
 import CreditVerificationPage from "../Pages/Verification/CreditVerificationPage";
+import Loan from "../Pages/Verification/Loan";
+import MainPdf from "../Pages/Verification/MainPdf";
 
 const RouteApp = () => {
   return (
@@ -37,6 +39,8 @@ const RouteApp = () => {
               <Route path="udyam" element={<UdyamAadhaar/>}/>
               <Route path="passport" element={<PassportVerification/>}/>
               <Route path="credit" element={<CreditVerificationPage/>}/>
+              <Route path="loan" element={<Loan/>}/>
+              <Route path="main" element={<MainPdf/>}/>
           </Route>
         </Routes>
       </Router>
