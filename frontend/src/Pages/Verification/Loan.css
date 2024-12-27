@@ -1,0 +1,34 @@
+body {
+    font-size: 80%;
+}
+    .section-title {
+        background-color: #007bff;
+        color: white;
+        padding: 10px;
+        font-weight: bold;
+    }
+
+    .sub-title {
+        background-color: #ff851b;
+        color: white;
+        padding: 10px;
+        font-weight: bold;
+    }
+
+    .bordered {
+        border: 1px solid #dee2e6;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 5px;
+        vertical-align: middle;
+    }
+
+    .highlight {
+        background-color: #f8f9fa;
+    }
+    td,th{
+        padding: 0;
+        margin: 0;
+    }

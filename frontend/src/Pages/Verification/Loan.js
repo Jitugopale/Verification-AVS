@@ -1,198 +1,274 @@
 import React from 'react';
-
+import "./Loan.css";
 const Loan = () => {
-  const styles = {
-    body: {
-      fontFamily: 'Arial, sans-serif',
-      margin: 0,
-      padding: 0,
-      backgroundColor: '#f4f4f4',
-    },
-    container: {
-      width: '80%',
-      margin: '20px auto',
-      background: '#fff',
-      padding: '20px',
-      border: '1px solid #ddd',
-      boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)',
-    },
-    header: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      borderBottom: '2px solid #004aad',
-      paddingBottom: '10px',
-      marginBottom: '20px',
-    },
-    headerImg: {
-      width: '150px',
-    },
-    headerH1: {
-      color: '#004aad',
-      fontSize: '20px',
-    },
-    section: {
-      marginBottom: '20px',
-    },
-    sectionH2: {
-      backgroundColor: '#004aad',
-      color: '#fff',
-      padding: '10px',
-      margin: 0,
-      fontSize: '16px',
-    },
-    table: {
-      width: '100%',
-      borderCollapse: 'collapse',
-      marginTop: '10px',
-    },
-    tableBorder: {
-      border: '1px solid #ddd',
-    },
-    th: {
-      backgroundColor: '#f2f2f2',
-      padding: '10px',
-      textAlign: 'left',
-    },
-    td: {
-      padding: '10px',
-      textAlign: 'left',
-    },
-    highlight: {
-      backgroundColor: '#ffcc00',
-      fontWeight: 'bold',
-    },
-    center: {
-      textAlign: 'center',
-    },
-  };
+  // const styles = {
+    
+    
+  // };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.header}>
-        <h1 style={styles.headerH1}>TransUnion CIBIL</h1>
-        <img style={styles.headerImg} src="https://via.placeholder.com/150" alt="TransUnion CIBIL Logo" />
-      </div>
-      <div style={styles.section}>
-        <h2 style={styles.sectionH2}>CIBIL Combo Report</h2>
-        <table style={styles.table}>
-          <tbody>
-            <tr style={styles.tableBorder}>
-              <th style={styles.th}>Consumer Name</th>
-              <td style={styles.td}>Ranjana</td>
-              <th style={styles.th}>Date</th>
-              <td style={styles.td}>16-12-2024</td>
+    <>
+           <div className="container my-4 border" style={{width:'70%'}}>
+  <div className="row">
+    <div className="col-12 text-center">
+      <h1 className="text-primary">CIBIL Combo Report</h1>
+    </div>
+  </div>
+  <div className="row my-3">
+    <div className="col-md-4">
+      <table className="table table-borderless">
+        <tbody><tr>
+            <td><strong>Consumer Name:</strong></td>
+            <td>RANJANA</td>
+          </tr>
+          <tr>
+            <td><strong>Enquiry ID:</strong></td>
+            <td>MF8311001_10</td>
+          </tr>
+          <tr>
+            <td><strong>Member Reference No:</strong></td>
+            <td>284032</td>
+          </tr>
+          <tr>
+            <td><strong>Branch ID:</strong></td>
+            <td>1123</td>
+          </tr>
+        </tbody></table>
+    </div>
+    <div className="col-md-4 offset-md-4">
+      <table className="table table-borderless">
+        <tbody><tr>
+            <td><strong>Date:</strong></td>
+            <td>16-12-2024</td>
+          </tr>
+          <tr>
+            <td><strong>Time:</strong></td>
+            <td>09:46:12</td>
+          </tr>
+          <tr>
+            <td><strong>Control Number:</strong></td>
+            <td>000050270017</td>
+          </tr>
+          <tr>
+            <td><strong>Kendra / Centre:</strong></td>
+            <td />
+          </tr>
+        </tbody></table>
+    </div>
+  </div>
+  <div className="p-4">
+    <div className="row my-2">
+      <div className="col-12">
+        <table className="table table-bordered data-table" style={{width: '100%', tableLayout: 'fixed'}}>
+          <tbody><tr>
+              <th colSpan={2} style={{backgroundColor: 'yellow'}}>BORROWER DETAILS</th>
+              <th colSpan={2} style={{backgroundColor: 'yellow'}}>IDENTIFICATION</th>
+              <th colSpan={2} style={{backgroundColor: 'yellow'}}>FAMILY DETAILS</th>
             </tr>
-            <tr style={styles.tableBorder}>
-              <th style={styles.th}>Enquiry ID</th>
-              <td style={styles.td}>RM#113001_10</td>
-              <th style={styles.th}>Time</th>
-              <td style={styles.td}>09:41:12</td>
+            <tr>
+              <th>Name</th>
+              <td>RANJANA PANDURANG MOHITE</td>
+              <th>PAN</th>
+              <td>ERPPM0099P</td>
+              <th>No. of Dependents</th>
+              <td>2</td>
             </tr>
-            <tr style={styles.tableBorder}>
-              <th style={styles.th}>Member Reference No.</th>
-              <td style={styles.td}>264382</td>
-              <th style={styles.th}>Control Number</th>
-              <td style={styles.td}>0005207017</td>
+            <tr>
+              <th>DOB</th>
+              <td>01-03-1990</td>
+              <th />
+              <td />
+              <th>Husband</th>
+              <td>PANDURANG GANPAT MOHITE</td>
             </tr>
-            <tr style={styles.tableBorder}>
-              <th style={styles.th}>Branch ID</th>
-              <td colSpan={3} style={styles.td}>--</td>
+            <tr>
+              <th>Gender</th>
+              <td>FEMALE</td>
+              <th />
+              <td />
+              <th />
+              <td />
             </tr>
-          </tbody>
-        </table>
-      </div>
-      <div style={styles.section}>
-        <h2 style={styles.sectionH2}>Member Name: Unity Small Finance Bank Limited</h2>
-        <table style={styles.table}>
-          <tbody>
-            <tr style={styles.tableBorder}>
-              <th style={styles.th}>Borrower Details</th>
-              <th style={styles.th}>Identification</th>
-              <th style={styles.th}>Family Details</th>
+            <tr>
+              <th>Marital Status</th>
+              <td>MARRIED</td>
+              <th />
+              <td />
+              <th />
+              <td />
             </tr>
-            <tr style={styles.tableBorder}>
-              <td style={styles.td}>
-                <p>Name: Ranjana Pandurang Mohite</p>
-                <p>DOB: 01-03-1990</p>
-                <p>Gender: Female</p>
-                <p>Marital Status: Married</p>
-                <p>Address: 2 Shree Charan Chawl...</p>
+            <tr>
+              <th>Address</th>
+              <td colSpan={3}>
+                2 SHREE CHARAN CHWAL SHANTI NAGAR MUMBRA COLONY ROAD, DIVA EAST, THANE, MAHARASHTRA
+                400612
               </td>
-              <td style={styles.td}>
-                <p>PAN: ERPPM0095P</p>
+              <th>Reported Date</th>
+              <td>14-03-2024</td>
+            </tr>
+            <tr>
+              <th>ADDRESS</th>
+              <td colSpan={3}>
+                2 SHREE CHARAN CHWAL SHANTI NAGAR MUMBRA COLONY ROAD, DIVA EAST, THANE, MAHARASHTRA
+                400612
               </td>
-              <td style={styles.td}>
-                <p>No. of Dependents: 2</p>
-                <p>Husband: Pandurang Ganpat Mohite</p>
-              </td>
+              <th>Reported Date</th>
+              <td>14-03-2024</td>
             </tr>
-          </tbody>
-        </table>
+          </tbody></table>
       </div>
-      <div style={styles.section}>
-        <h2 style={styles.sectionH2}>Account Status: Active</h2>
-        <table style={styles.table}>
-          <tbody>
-            <tr style={styles.tableBorder}>
-              <th style={styles.th}>Account Type</th>
-              <td style={styles.td}>702</td>
-              <th style={styles.th}>Credit Grantor</th>
-              <td style={styles.td}>Unity Small Finance Bank Limited</td>
+    </div>
+    <div className="sub-title">ACCOUNT STATUS: CLOSED</div>
+    <div className="row my-3">
+      <div className="col-12">
+        <table className="table table-bordered data-table" style={{width: '100%', tableLayout: 'fixed'}}>
+          <tbody><tr>
+              <th colSpan={6} style={{backgroundColor: 'yellow'}}>ACCOUNT INFORMATION</th>
             </tr>
-            <tr style={styles.tableBorder}>
-              <th style={styles.th}>Account No.</th>
-              <td style={styles.td}>1125-0015765</td>
-              <th style={styles.th}>Loan Purpose</th>
-              <td style={styles.td}>Manufacturing</td>
+            <tr>
+              <th>Account Type</th>
+              <td>JLG INDIVIDUAL</td>
+              <th>Credit Grantor</th>
+              <td>UNITY SMALL FINANCE BANK LIMITED</td>
+              <th>No. of Installments</th>
+              <td>24</td>
             </tr>
-            <tr style={styles.tableBorder}>
-              <th style={styles.th}>Sanctioned Amount</th>
-              <td style={styles.td}>60,000</td>
-              <th style={styles.th}>Current Balance</th>
-              <td style={styles.td}>45,389</td>
+            <tr>
+              <th>Account No.</th>
+              <td>1123-0014554</td>
+              <th>Loan Purpose</th>
+              <td>MANUFACTURING</td>
+              <th>Repayment Frequency</th>
+              <td>MONTHLY</td>
             </tr>
-          </tbody>
-        </table>
+            <tr>
+              <th>BRANCH ID</th>
+              <td>1123</td>
+              <th>Kendra ID</th>
+              <td>1123</td>
+              <th />
+              <td />
+            </tr>
+          </tbody></table>
+        <table className="table table-bordered " style={{width: '100%', tableLayout: 'fixed'}}>
+          <tbody><tr><th colSpan={6} style={{backgroundColor: 'yellow'}}>DATES</th></tr>
+            <tr>
+              <th>OPEN / DISURSHED Date</th>
+              <td>05-05-2023</td>
+              <th>WRITTEN-OFF Date</th>
+              <td>10-04-2024</td>
+              <th>CLOSED Date</th>
+              <td>30-06-2024</td>
+            </tr>
+            <tr>
+              <th>Sanctioned Date</th>
+              <td>05-05-2023</td>
+              <th>Last Payment Date</th>
+              <td>10-04-2024</td>
+              <th>Reported Date</th>
+              <td>30-06-2024</td>
+            </tr>
+          </tbody></table>
+        <table className="table table-bordered " style={{width: '100%', tableLayout: 'fixed'}}>
+          <tbody><tr><th colSpan={6} style={{backgroundColor: 'yellow'}}>AMOUNT</th></tr>
+            <tr>
+              <th>DISBURED AMOUNT </th>
+              <td>35,000</td>
+              <th>WRITTEN-OFF AMOUNT</th>
+              <td />
+              <th>CURRENT BALANCE</th>
+              <td />
+            </tr>
+            <tr>
+              <th>SANCTIONED AMMOUNT</th>
+              <td>35,000</td>
+              <th>LAST PAYMENT AMMOUNT</th>
+              <td>1,870</td>
+              <th>OVERDUE</th>
+              <td />
+            </tr>
+            <tr>
+              <th>INSTALLMENT AMMOUNT</th>
+              <td>1,870</td>
+              <th />
+              <td />
+              <th />
+              <td />
+            </tr>
+          </tbody></table>
+        <table className="table table-bordered " style={{width: '50%', tableLayout: 'fixed'}}>
+          <tbody><tr><th colSpan={2} style={{backgroundColor: 'yellow'}}>ACCOUNT STATUS</th></tr>
+            <tr>
+              <th>ACCOUNT STATUS</th>
+              <td>CLOSED</td>
+            </tr>
+            <tr>
+              <th>REASON</th>
+              <td />
+            </tr>
+          </tbody></table>
       </div>
-      <div style={styles.section}>
-        <h2 style={styles.sectionH2}>Days Past Due</h2>
-        <table style={styles.table}>
-          <tbody>
-            <tr style={styles.tableBorder}>
-              <th style={styles.th}>Year</th>
-              <th style={styles.th}>Jan</th>
-              <th style={styles.th}>Feb</th>
-              <th style={styles.th}>Mar</th>
-              <th style={styles.th}>Apr</th>
-              <th style={styles.th}>May</th>
-              <th style={styles.th}>Jun</th>
-              <th style={styles.th}>Jul</th>
-              <th style={styles.th}>Aug</th>
-              <th style={styles.th}>Sep</th>
-              <th style={styles.th}>Oct</th>
-              <th style={styles.th}>Nov</th>
-              <th style={styles.th}>Dec</th>
+    </div>
+    <div className="row my-3">
+      <div className="col-12">
+        <div className="section-title">DAYS PAST DUE</div>
+        <table className="table table-bordered text-center">
+          <thead>
+            <tr>
+              <th>Year</th>
+              <th>DEC</th>
+              <th>NOV</th>
+              <th>OCT</th>
+              <th>SEP</th>
+              <th>AUG</th>
+              <th>JUL</th>
+              <th>JUN</th>
+              <th>MAY</th>
+              <th>APR</th>
+              <th>MAR</th>
+              <th>FEB</th>
+              <th>JAN</th>
             </tr>
-            <tr style={styles.tableBorder}>
-              <td style={styles.td}>2024</td>
-              <td style={{ ...styles.td, ...styles.center }}>000</td>
-              <td style={{ ...styles.td, ...styles.center }}>000</td>
-              <td style={{ ...styles.td, ...styles.center }}>000</td>
-              <td style={{ ...styles.td, ...styles.center }}>000</td>
-              <td style={{ ...styles.td, ...styles.center }}>000</td>
-              <td style={{ ...styles.td, ...styles.center }}>000</td>
-              <td style={{ ...styles.td, ...styles.center }}>000</td>
-              <td style={{ ...styles.td, ...styles.center }}>000</td>
-              <td style={{ ...styles.td, ...styles.center }}>000</td>
-              <td style={{ ...styles.td, ...styles.center }}>000</td>
-              <td style={{ ...styles.td, ...styles.center }}>000</td>
-              <td style={{ ...styles.td, ...styles.center }}>000</td>
+          </thead>
+          <tbody>
+            <tr>
+              <td>2024</td>
+              <td />
+              <td />
+              <td />
+              <td>000</td>
+              <td>000</td>
+              <td>000</td>
+              <td>000</td>
+              <td>000</td>
+              <td>000</td>
+              <td>000</td>
+              <td>000</td>
+              <td>000</td>
+            </tr>
+            <tr>
+              <td>2023</td>
+              <td>000</td>
+              <td>000</td>
+              <td>000</td>
+              <td>000</td>
+              <td>000</td>
+              <td>000</td>
+              <td>000</td>
+              <td>000</td>
+              <td>000</td>
+              <td>000</td>
+              <td>000</td>
+              <td>000</td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
+  </div>
+</div>
+
+    </>
   );
 };
 

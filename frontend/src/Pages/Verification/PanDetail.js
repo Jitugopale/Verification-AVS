@@ -178,6 +178,7 @@ const PanDetail = () => {
       justifyContent: "space-between",
       border: "1px solid #ccc",
       marginBottom: "20px",
+  
     },
     button: {
       marginRight: "10px",
@@ -203,8 +204,8 @@ const PanDetail = () => {
 
       <div className="d-flex align-items-center">
         <div className=" p-3" style={{width:'1200px'}}>
-          <h1 className="card-title">PAN Detail Verification</h1>
-          <div style={styles.statusBar}>
+          <h1 className="card-title" style={{color:'green'}}>PAN Detail Verification</h1>
+          <div style={styles.statusBar} className='mt-2'>
           <span>No. Of Count: 36</span>
           <span>Your available Credit: -62</span>
         </div>

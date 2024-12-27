@@ -436,7 +436,7 @@ const handleAdharPdf = (aadhaarDetails) => {
         </div>
       )}
       
-      <DateComponent/>
+      {verifiedUsers.length > 0 && <DateComponent verifiedUsers={verifiedUsers} />}
 
     </div>
   );
