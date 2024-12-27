@@ -20,7 +20,7 @@ const GSTVerificationPage = () => {
     setResponseData(null);
 
     try {
-      const res = await axios.post('http://192.168.20.151:4000/api/gst/gst_verify', { id_number: idNumber });
+      const res = await axios.post('http://localhost:5000/api/gst/gst_verify', { id_number: idNumber });
 
       if (res.data.status === 'success') {
         setResponseData(res.data);  // Store the successful response data

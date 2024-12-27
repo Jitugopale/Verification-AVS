@@ -6,10 +6,11 @@ import DateComponent from "./DateComponent";
 
 // Inline styles
 const containerStyle = {
+    maxWidth:'1200px',
+    width:'1000px',
     maxHeight: "80vh",
     overflowY: "auto",
     overflowX: "auto",
-    border: "1px solid #ddd",
     padding: "16px",
     boxSizing: "border-box",
   };

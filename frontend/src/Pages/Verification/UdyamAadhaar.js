@@ -6,6 +6,7 @@ const UdyamAadhaar = () => {
   const [udyamAadhaar, setUdyamAadhaar] = useState('');
   const [responseData, setResponseData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
   const [error, setError] = useState('');
 
   const handleVerify = async () => {
@@ -20,7 +21,7 @@ const UdyamAadhaar = () => {
 
     try {
       // API call to your backend with the correct variable name in the payload
-      const res = await axios.post('http://192.168.20.151:4000/api/udyam/udyam_aadhaar_verify', { udyam_aadhaar: udyamAadhaar });
+      const res = await axios.post('http://localhost:5000/api/udyam/udyam_aadhaar_verify', { udyam_aadhaar: udyamAadhaar });
       setResponseData(res.data);  // Store the response data in state
     } catch (err) {
       // Displaying detailed error if available
@@ -114,16 +115,60 @@ const UdyamAadhaar = () => {
     doc.save('udyam_aadhaar_verification.pdf');
   };
   
+  const styles={
+    statusBar: {
+      backgroundColor: "#f1f1f1",
+      padding: "10px",
+      display: "flex",
+      justifyContent: "space-between",
+      border: "1px solid #ccc",
+      marginBottom: "20px",
+  
+    },
+    button: {
+      marginRight: "10px",
+      padding: "5px 10px",
+      backgroundColor: "#008080",
+      color: "white",
+      border: "none",
+      cursor: "pointer",
+    },
+  }
+  const inputStyle = {
+    marginBottom: "10px",
+    padding: "8px",
+    width: "30%",
+    boxSizing: "border-box",
+  };
 
   return (
-    <div className="container-fluid mt-5">
-      <div className="d-flex justify-content-center align-items-center">
-        <div className="card shadow p-3" style={{ width: '500px' }}>
-          <h1 className="card-title">Udyam Aadhaar Verification</h1>
-          <p className="card-text">
-            Securely verify Udyam Aadhaar information online with ease and reliability.
-          </p>
-          <div className="mb-3">
+    <div className="container-fluid">
+      <div className="d-flex align-items-center">
+        <div className="p-3" style={{ width: "100%", maxWidth: "1000px" }}>
+        <h1 className="card-title" style={{color:'green'}}>Udyam Aadhaar Verification</h1>
+          <div style={styles.statusBar} className='mt-3'>
+          <span>No. Of Count: 36</span>
+          <span>Your available Credit: -62</span>
+        </div>
+        <div>
+        <label>Enter Udyam Number : &nbsp;</label>
+        <input
+          type="text"
+          value={udyamAadhaar}
+          id="udyam_aadhaar"
+          onChange={(e) => setUdyamAadhaar(e.target.value)}
+          placeholder="Enter GST Number"
+          style={inputStyle}
+        />
+        <div className="buttons mt-3">
+        {!isVerified &&<button style={styles.button} onClick={handleVerify} disabled={loading} >{loading ? 'Verifying...' : 'Verify'}</button>}
+            <button style={styles.button}>Excel Report</button>
+            <button style={styles.button} onClick={() => setUdyamAadhaar("")}>Clear</button>
+            <button style={styles.button}>Search</button>
+          </div>
+      </div>
+          {/* <h1 className="card-title">Udyam Aadhaar Verification</h1> */}
+          {/* <div className="mb-3">
             <label htmlFor="udyam_aadhaar" className="form-label">Enter Udyam Aadhaar Number</label>
             <input
               type="text"
@@ -132,10 +177,10 @@ const UdyamAadhaar = () => {
               value={udyamAadhaar}
               onChange={(e) => setUdyamAadhaar(e.target.value)}
             />
-          </div>
-          <button className="btn btn-primary" onClick={handleVerify} disabled={loading}>
+          </div> */}
+          {/* <button className="btn btn-primary" onClick={handleVerify} disabled={loading}>
             {loading ? 'Verifying...' : 'Verify'}
-          </button>
+          </button> */}
 
           {/* Show error if any */}
           {error && <div className="alert alert-danger mt-3">{error}</div>}

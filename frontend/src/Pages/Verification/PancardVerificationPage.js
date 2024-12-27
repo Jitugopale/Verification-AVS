@@ -10,6 +10,7 @@ const PancardVerificationPage = ({
   const [verificationResult, setVerificationResult] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false); // Added loading state
+  const [isVerified, setIsVerified] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
 
   const handleSubmit = async (e) => {
@@ -20,7 +21,7 @@ const PancardVerificationPage = ({
 
     try {
       const response = await axios.post(
-        "http://192.168.20.151:4000/api/pan/verifyPanCard",
+        "http://localhost:5000/api/pan/verifyPanCard",
         { pannumber }
       );
       setVerificationResult(response.data.verifiedData);
@@ -171,17 +172,51 @@ const generatePDF = () => {
 
 
 
+const styles={
+  statusBar: {
+    backgroundColor: "#f1f1f1",
+    padding: "10px",
+    display: "flex",
+    justifyContent: "space-between",
+    border: "1px solid #ccc",
+    marginBottom: "20px",
+
+  },
+  button: {
+    marginRight: "10px",
+    padding: "5px 10px",
+    backgroundColor: "#008080",
+    color: "white",
+    border: "none",
+    cursor: "pointer",
+  },
+}
+const inputStyle = {
+  marginBottom: "10px",
+  padding: "8px",
+  width: "30%",
+  boxSizing: "border-box",
+};
+
+
+
+
+
   return (
-    <div className="container-fluid mt-5">
-      <div className="container d-flex justify-content-center align-items-center">
+    <div className="container-fluid">
+      <div className="container d-flex align-items-center">
       <div
-        className="card p-4 shadow-sm"
-        style={{ width: "100%", maxWidth: "500px" }}
+        className="p-2 mt-2"
+        style={{ width: "100%", maxWidth: "1000px" }}
       >
-        <h2 className="text-center mb-4">PAN Card Verification</h2>
+        <h2 className="mb-4">PAN Card Verification</h2>
+          <div style={styles.statusBar} className='mt-2'>
+          <span>No. Of Count: 36</span>
+          <span>Your available Credit: -62</span>
+        </div>
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
-            <label htmlFor="pannumber" className="form-label">
+            {/* <label htmlFor="pannumber" className="form-label">
               PAN Number
             </label>
             <input
@@ -191,15 +226,30 @@ const generatePDF = () => {
               value={pannumber}
               onChange={(e) => setPannumber(e.target.value)}
               required
-            />
+            /> */}
+            <label>Enter ID Number : &nbsp;</label>
+        <input
+          type="text"
+          value={pannumber}
+          onChange={(e) => setPannumber(e.target.value)}
+          placeholder="Enter PAN Number"
+          id="pannumber"
+          style={inputStyle}
+        />
           </div>
-          <button
+          {/* <button
             type="submit"
             className="btn btn-primary w-100"
             disabled={loading}
           >
             {loading ? "Verifying..." : "Verify PAN"}
-          </button>
+          </button> */}
+          <div className="buttons mt-3">
+        {!isVerified &&<button type="submit" style={styles.button} disabled={loading} >{loading ? 'Verifying...' : 'Verify PAN'}</button>}
+            <button style={styles.button}>Excel Report</button>
+            <button style={styles.button} onClick={() => setPannumber("")}>Clear</button>
+            <button style={styles.button}>Search</button>
+          </div>
         </form>
 
         {loading && <p className="text-center mt-3">Loading...</p>}

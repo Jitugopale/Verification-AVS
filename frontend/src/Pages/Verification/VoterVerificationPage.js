@@ -21,7 +21,7 @@ const VoterVerificationPage = () => {
 
     try {
       const res = await axios.post(
-        "http://192.168.20.151:4000/api/voter/voter_verify",
+        "http://localhost:5000/api/voter/voter_verify",
         { id_number: idNumber }
       );
       if (res.data.status === "success") {

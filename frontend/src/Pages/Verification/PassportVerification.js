@@ -20,7 +20,7 @@ const PassportVerification = () => {
     setResponseData(null);
 
     try {
-      const res = await axios.post('http://192.168.20.151:4000/api/passport/passport_verify', { 
+      const res = await axios.post('http://localhost:5000/api/passport/passport_verify', { 
         id_number: idNumber, 
         dob 
       });
@@ -112,14 +112,41 @@ const PassportVerification = () => {
     doc.save('Passport_Verification_Details.pdf');
   };
 
+  const styles={
+    statusBar: {
+      backgroundColor: "#f1f1f1",
+      padding: "10px",
+      display: "flex",
+      justifyContent: "space-between",
+      border: "1px solid #ccc",
+      marginBottom: "20px",
+  
+    },
+    button: {
+      marginRight: "10px",
+      padding: "5px 10px",
+      backgroundColor: "#008080",
+      color: "white",
+      border: "none",
+      cursor: "pointer",
+    },
+  }
+  const inputStyle = {
+    marginBottom: "10px",
+    padding: "8px",
+    width: "30%",
+    boxSizing: "border-box",
+  };
+
   return (
-    <div className="container-fluid mt-5">
-      <div className="d-flex justify-content-center align-items-center">
-        <div className="card shadow p-3" style={{ width: '500px' }}>
-          <h1 className="card-title">Passport Verification</h1>
-          <p className="card-text">
-            Securely verify passport information online with ease and reliability.
-          </p>
+    <div className="container-fluid">
+      <div className="d-flex align-items-center">
+        <div className="p-3" style={{ width: '1200px', maxWidth:'1000px' }}>
+        <h2 className="mb-4" style={{color:'green'}}>PassPort Verification</h2>
+          <div style={styles.statusBar} className='mt-2'>
+          <span>No. Of Count: 36</span>
+          <span>Your available Credit: -62</span>
+        </div>
           <div className="mb-3">
             <label htmlFor="id_number" className="form-label">Enter Passport ID</label>
             <input

@@ -220,11 +220,11 @@ const PanDetail = () => {
             />
           </div> */}
           <div>
-        <label>Enter ID Number : &nbsp;</label>
+<label>Enter ID Number : &nbsp;</label>
         <input
           type="text"
           value={idNumber}
-          onChange={(e) => setIdNumber(e.target.value)}
+          onChan        ge={(e) => setIdNumber(e.target.value)}
           placeholder="Enter PAN Number"
           style={inputStyle}
         />
