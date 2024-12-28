@@ -21,7 +21,7 @@ const VoterVerificationPage = () => {
 
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/voter/voter_verify",
+        "http://192.168.20.151:4000/api/voter/voter_verify",
         { id_number: idNumber }
       );
       if (res.data.status === "success") {
@@ -158,7 +158,7 @@ const VoterVerificationPage = () => {
     const outerX = 10;
     const outerY = 62;
     const outerWidth = 190;
-    const outerHeight = 125;
+    const outerHeight = 165;
   
     // Draw the outer border
     doc.setDrawColor(0);
@@ -171,113 +171,60 @@ const VoterVerificationPage = () => {
     const contentWidth = 120;
     const contentHeight = 90;
   
-    // Define positions and dimensions for the profile image box
-    const imageX = 150;
-    const imageY = 70;
-    const imageWidth = 40;
-    const imageHeight = 40;
+    // User Details Content inside the rectangle
+    const userDetails = [
+      { label: "Status", value: "success" || "N/A" },
+      { label: "Id Number", value: idNumber ? idNumber.toString() : "N/A" },
+      { label: "Name", value: responseData.data.name ? responseData.data.name.toString() : "N/A" },
+      { label: "Age", value: responseData.data.age ? responseData.data.age.toString() : "N/A" },
+      { label: "Gender", value: responseData.data.gender ? responseData.data.gender.toString() : "N/A" },
+      { label: "Relation Name", value: responseData.data.relation_name ? responseData.data.relation_name.toString() : "N/A" },
+      { label: "Relation Type", value: responseData.data.relation_type ? responseData.data.relation_type.toString() : "N/A" },
+      { label: "State", value: responseData.data.state ? responseData.data.state.toString() : "N/A" },
+      { label: "District", value: responseData.data.district ? responseData.data.district.toString() : "N/A" },
+      { label: "Polling Station", value: responseData.data.polling_station ? responseData.data.polling_station.toString() : "N/A" },
+      { label: "Assembly Constituency", value: responseData.data.assembly_constituency ? responseData.data.assembly_constituency.toString() : "N/A" },
+      { label: "Constituency Number", value: responseData.data.assembly_constituency_number ? responseData.data.assembly_constituency_number.toString() : "N/A" },
+      { label: "Part Number", value: responseData.data.part_number ? responseData.data.part_number.toString() : "N/A" },
+      { label: "Part Name", value: responseData.data.part_name ? responseData.data.part_name.toString() : "N/A" },
+      { label: "Parliamentary Name", value: responseData.data.parliamentary_name ? responseData.data.parliamentary_name.toString() : "N/A" },
+      { label: "Parliamentary Number", value: responseData.data.parliamentary_number ? responseData.data.parliamentary_number.toString() : "N/A" }
+    ];
   
-    // User Details Content
     doc.setFont("helvetica", "bold");
-    doc.text("Status                                :", contentX + 2, contentY + 3);
-    doc.setFont("helvetica", "normal");
-    doc.text("success" || "N/A", contentX + 54, contentY + 3);
-    
-    doc.setFont("helvetica", "bold");
-    doc.text("Id Number                        :", contentX + 2, contentY + 11);
-    doc.setFont("helvetica", "normal");
-    doc.text(idNumber ? idNumber.toString() : "N/A", contentX + 54, contentY + 11);
-    
-    doc.setFont("helvetica", "bold");
-    doc.text("Name                       :", contentX + 2, contentY + 19);
-    doc.setFont("helvetica", "normal");
-    doc.text(responseData.data.name ? responseData.data.name.toString() : "N/A", contentX + 54, contentY + 19);
-    
-    // Adjusted the Y-values for the remaining fields
-    doc.setFont("helvetica", "bold");
-    doc.text("Age                    :", contentX + 2, contentY + 29); // Updated Y
-    doc.setFont("helvetica", "normal");
-    doc.text(responseData.data.age ? responseData.data.age.toString() : "N/A", contentX + 54, contentY + 29); // Updated Y
-    
-    doc.setFont("helvetica", "bold");
-    doc.text("Gender                        :", contentX + 2, contentY + 39); // Updated Y
-    doc.setFont("helvetica", "normal");
-    doc.text(responseData.data.gender ? responseData.data.gender.toString() : "N/A", contentX + 54, contentY + 39); // Updated Y
-    
-    doc.setFont("helvetica", "bold");
-    doc.text("Relation Name                         :", contentX + 2, contentY + 49); // Updated Y
-    doc.setFont("helvetica", "normal");
-    doc.text(responseData.data.relation_name ? responseData.data.relation_name.toString() : "N/A", contentX + 54, contentY + 49); // Updated Y
-    
-    doc.setFont("helvetica", "bold");
-    doc.text("Relation Type                       :", contentX + 2, contentY + 59); // Updated Y
-    doc.setFont("helvetica", "normal");
-    doc.text(responseData.data.relation_type ? responseData.data.relation_type.toString() : "N/A", contentX + 54, contentY + 59); // Updated Y
-    
-    doc.setFont("helvetica", "bold");
-    doc.text("State                           :", contentX + 2, contentY + 69); // Updated Y
-    doc.setFont("helvetica", "normal");
-    doc.text(responseData.data.state ? responseData.data.state.toString() : "N/A", contentX + 54, contentY + 69); // Updated Y
-    
-    doc.setFont("helvetica", "bold");
-    doc.text("District :", contentX + 2, contentY + 79); // Updated Y
-    doc.setFont("helvetica", "normal");
-    doc.text(responseData.data.district ? responseData.data.district.toString() : "N/A", contentX + 54, contentY + 79); // Updated Y
-
-    // doc.setFont("helvetica", "bold");
-    // doc.text("District :", contentX + 2, contentY + 79); // Updated Y
-    // doc.setFont("helvetica", "normal");
-    // doc.text(responseData.data.district ? responseData.data.district.toString() : "N/A", contentX + 54, contentY + 79); // Updated Y
-
-    // doc.setFont("helvetica", "bold");
-    // doc.text("District :", contentX + 2, contentY + 79); // Updated Y
-    // doc.setFont("helvetica", "normal");
-    // doc.text(responseData.data.district ? responseData.data.district.toString() : "N/A", contentX + 54, contentY + 79); // Updated Y
-
-    // doc.setFont("helvetica", "bold");
-    // doc.text("District :", contentX + 2, contentY + 79); // Updated Y
-    // doc.setFont("helvetica", "normal");
-    // doc.text(responseData.data.district ? responseData.data.district.toString() : "N/A", contentX + 54, contentY + 79); // Updated Y
-
-    // doc.setFont("helvetica", "bold");
-    // doc.text("District :", contentX + 2, contentY + 79); // Updated Y
-    // doc.setFont("helvetica", "normal");
-    // doc.text(responseData.data.district ? responseData.data.district.toString() : "N/A", contentX + 54, contentY + 79); // Updated Y
-
-    // doc.setFont("helvetica", "bold");
-    // doc.text("District :", contentX + 2, contentY + 79); // Updated Y
-    // doc.setFont("helvetica", "normal");
-    // doc.text(responseData.data.district ? responseData.data.district.toString() : "N/A", contentX + 54, contentY + 79); // Updated Y
-    
+    let yOffset = contentY;
   
-    
+    userDetails.forEach(item => {
+      doc.text(`${item.label} :`, contentX + 2, yOffset + 3);
+      doc.setFont("helvetica", "normal");
+      doc.text(item.value, contentX + 54, yOffset + 3);
+      yOffset += 10; // Adjust the Y offset for the next line
+    });
+  
     // Footer with signatures
     doc.setFont("helvetica", "bold");
-    doc.text("Signature of the Authorised Signatory", 14, 205);
-    doc.text("Signature of the Branch Manager", 110, 205);
+    doc.text("Signature of the Authorised Signatory", 14, 238);
+    doc.text("Signature of the Branch Manager", 110, 238);
   
     doc.setFont("helvetica", "normal");
-    doc.text("Name: __________________", 14, 215);
-    doc.text("Name: __________________", 110, 215);
+    doc.text("Name: __________________", 14, 248);
+    doc.text("Name: __________________", 110, 248);
   
-    doc.text("Designation: ____________", 14, 225);
-    doc.text("Designation: ____________", 110, 225);
+    doc.text("Designation: ____________", 14, 258);
+    doc.text("Designation: ____________", 110, 258);
   
-    doc.text("Phone no.: ______________", 14, 235);
-    doc.text("Date: ___________________", 110, 235);
+    doc.text("Phone no.: ______________", 14, 268);
+    doc.text("Date: ___________________", 110, 268);
   
     // Bank Seal
     doc.setFont("helvetica", "normal");
-    doc.text("(Bank Seal)", 14, 256);
-    doc.text("Verified By : User", 120, 256);
+    doc.text("(Bank Seal)", 14, 280);
+    doc.text("Verified By : User", 120, 280);
   
     // Save PDF
-    const fileName ={idNumber}
-      ? `${responseData.data.name}_verification_certificate.pdf`
-      : "verification_certificate.pdf";
+    const fileName = idNumber ? `${responseData.data.name}_verification_certificate.pdf` : "verification_certificate.pdf";
     doc.save(fileName);
   };
-  
 
   const styles={
     statusBar: {

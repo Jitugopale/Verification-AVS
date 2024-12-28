@@ -1,6 +1,9 @@
 body {
     font-size: 80%;
 }
+table{
+    border:"1px solid black";
+}
     .section-title {
         background-color: #007bff;
         color: white;
@@ -29,6 +32,7 @@ body {
         background-color: #f8f9fa;
     }
     td,th{
+        border:"1px solid black";
         padding: 0;
         margin: 0;
     }

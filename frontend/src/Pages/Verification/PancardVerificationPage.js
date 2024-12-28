@@ -21,7 +21,7 @@ const PancardVerificationPage = ({
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/pan/verifyPanCard",
+        "http://192.168.20.151:4000/api/pan/verifyPanCard",
         { pannumber }
       );
       setVerificationResult(response.data.verifiedData);

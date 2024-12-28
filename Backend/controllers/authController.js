@@ -531,6 +531,94 @@ async function verifyOtp(clientId, OTP, token,aadharNumber, res) {
 
 //Verify Credit
 
+// export const creditReportCheckController = async (req, res) => {
+//   const {name, mobile, document_id, date_of_birth, address, pincode } = req.body;
+
+//   if (!name || !mobile || !document_id || !date_of_birth || !address || !pincode) {
+//     return res.status(400).json({ error: 'Missing required fields' });
+// }
+
+//   // Check if CREDIT already exists in the database
+//   const existingCredit = await CREDIT.findOne({ document_id });
+//   if (existingCredit) {
+//       return res.status(200).json({
+//           status: 'success',
+//           message: 'CREDIT is already verified.',
+//           verifiedData: existingCredit.verifiedData, // Returning existing verified data
+//       });
+//   }
+
+//   const payload = {
+//       timestamp: Math.floor(Date.now() / 1000),
+//       partnerId: 'CORP0000363',
+//       reqid: "5436456",
+//   };
+//   const token = jwt.sign(payload, 'UTA5U1VEQXdNREF6TmpOUFZHc3lUMVJuZWs1cVFYbE5VVDA5');
+
+//   try {
+//       const response = await axios.post(
+//           'https://api.verifya2z.com/api/v1/verification/credit_report_checker',
+//           { name, mobile, document_id, date_of_birth, address, pincode },
+//           {
+//               headers: {
+//                   'Content-Type': 'application/json',
+//                   'Token': token,
+//                   // 'authorisedkey': authorisedkey,
+//                   'accept': 'application/json',
+//                   'User-Agent': 'CORP0000363',
+//               },
+//           }
+//       );
+
+//       res.status(200).json(response.data);
+
+//       const formatDateAndTime = (isoString) => {
+//         const date = new Date(isoString);
+
+//         // Format the date as "DD-MM-YYYY"
+//         const formattedDate = date.toLocaleDateString('en-GB', {
+//           day: '2-digit',
+//           month: '2-digit',
+//           year: 'numeric',
+//         });
+
+//         // Format the time as "hh:mm AM/PM"
+//         const formattedTime = date.toLocaleTimeString('en-US', {
+//           hour: '2-digit',
+//           minute: '2-digit',
+//           hour12: true,
+//         });
+
+//         return { formattedDate, formattedTime };
+//       };
+
+//       // Get the current date and time
+//       const currentDateTime = new Date();
+//       const { formattedDate, formattedTime } = formatDateAndTime(currentDateTime);
+
+//       // Save the verified CREDIT details to the database
+//       const newCredit = new CREDIT({
+//         document_id,
+//         status: 'verified',
+//         createdAt: currentDateTime, // ISO timestamp
+//         formattedDate, // "DD-MM-YYYY"
+//         formattedTime, // "hh:mm AM/PM"
+//         verifiedData: response.data, // Store response data in verifiedData field
+//       });
+
+//       await newCredit.save();
+//       await updateVerificationCount('credit');
+//   } catch (error) {
+//       console.error('Error fetching credit report:', error.message);
+
+//       if (error.response) {
+//           res.status(error.response.status).json(error.response.data);
+//       } else {
+//           res.status(500).json({ error: 'Internal Server Error' });
+//       }
+//   }
+// };
+
 export const creditReportCheckController = async (req, res) => {
   const {name, mobile, document_id, date_of_birth, address, pincode } = req.body;
 
@@ -570,33 +658,33 @@ export const creditReportCheckController = async (req, res) => {
           }
       );
 
-      res.status(200).json(response.data);
+      if (response.data.statuscode === 200 && response.data.status === true) {
+        console.log(response.data);
+        const formatDateAndTime = (isoString) => {
+          const date = new Date(isoString);
+  
+          // Format the date as "DD-MM-YYYY"
+          const formattedDate = date.toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+          });
+  
+          // Format the time as "hh:mm AM/PM"
+          const formattedTime = date.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true,
+          });
+  
+          return { formattedDate, formattedTime };
+        };
+  
+        // Get the current date and time
+        const currentDateTime = new Date();
+        const { formattedDate, formattedTime } = formatDateAndTime(currentDateTime);
 
-      const formatDateAndTime = (isoString) => {
-        const date = new Date(isoString);
-
-        // Format the date as "DD-MM-YYYY"
-        const formattedDate = date.toLocaleDateString('en-GB', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-        });
-
-        // Format the time as "hh:mm AM/PM"
-        const formattedTime = date.toLocaleTimeString('en-US', {
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: true,
-        });
-
-        return { formattedDate, formattedTime };
-      };
-
-      // Get the current date and time
-      const currentDateTime = new Date();
-      const { formattedDate, formattedTime } = formatDateAndTime(currentDateTime);
-
-      // Save the verified CREDIT details to the database
+        // Save the verified CREDIT details to the database
       const newCredit = new CREDIT({
         document_id,
         status: 'verified',
@@ -605,9 +693,31 @@ export const creditReportCheckController = async (req, res) => {
         formattedTime, // "hh:mm AM/PM"
         verifiedData: response.data, // Store response data in verifiedData field
       });
+  
+        await newCredit.save();
+        await updateVerificationCount('credit');
+  
+        req.body.verifiedData = { full_name, pan_number };
+  
+        return res.status(200).json({
+          status: 'success',
+          message: response.data.message || 'PAN Card verified successfully.',
+          verifiedData: { full_name, pan_number },
+        });
+      } else {
+        return res.status(400).json({
+          status: 'error',
+          message:
+            response.data.message || 'PAN verification failed. Invalid details.',
+        });
+      }
 
-      await newCredit.save();
-      await updateVerificationCount('credit');
+
+    
+
+      
+
+      
   } catch (error) {
       console.error('Error fetching credit report:', error.message);
 
@@ -618,6 +728,7 @@ export const creditReportCheckController = async (req, res) => {
       }
   }
 };
+
 
 
 

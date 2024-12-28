@@ -21,7 +21,7 @@ const UdyamAadhaar = () => {
 
     try {
       // API call to your backend with the correct variable name in the payload
-      const res = await axios.post('http://localhost:5000/api/udyam/udyam_aadhaar_verify', { udyam_aadhaar: udyamAadhaar });
+      const res = await axios.post('http://192.168.20.151:4000/api/udyam/udyam_aadhaar_verify', { udyam_aadhaar: udyamAadhaar });
       setResponseData(res.data);  // Store the response data in state
     } catch (err) {
       // Displaying detailed error if available
@@ -32,88 +32,121 @@ const UdyamAadhaar = () => {
   };
 
   const generatePDF = () => {
-    if (!responseData || !responseData.verifiedData) return;
-  
-    const { data } = responseData.verifiedData;
-  
     const doc = new jsPDF();
-  
-    // Title
-    doc.setFontSize(18);
-    doc.text('Udyam Aadhaar Verification', 20, 20);
-  
-    // Status
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+
+    // Add a full-page border
+    doc.setDrawColor(0); // Black color
+    doc.setLineWidth(0.7); // Border thickness
+    doc.rect(5, 5, pageWidth - 10, pageHeight - 10); // Draw rectangle with a 5-unit margin from each edge
+
+    // Center-aligned title
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(25);
+    const title = "Shankar Nagari Sahakari Bank Ltd";
+    doc.text(title, (pageWidth - doc.getTextWidth(title)) / 2, 20);
+
+    // Center-aligned subtitle
+    doc.setFontSize(14);
+    const subtitle = "Udyam Aadhaar Verification Certificate";
+    doc.text(subtitle, (pageWidth - doc.getTextWidth(subtitle)) / 2, 28);
+
+    // Center-aligned section header
     doc.setFontSize(12);
-    doc.text(`Status: ${responseData.status ? 'Verified' : 'Not Verified'}`, 20, 30);
-  
-    // Document ID
-    doc.text(`Document ID: ${data.enterprise_data.document_id}`, 20, 40);
-  
-    // Enterprise Name
-    doc.text(`Enterprise Name: ${data.enterprise_data.name}`, 20, 50);
-  
-    // Business Type
-    doc.text(`Business Type: ${data.enterprise_data.enterprise_type}`, 20, 60);
-  
-    // Major Activity
-    doc.text(`Major Activity: ${data.enterprise_data.major_activity}`, 20, 70);
-  
-    // Organization Type (Business Type)
-    doc.text(`Organization Type: ${data.enterprise_data.organization_type}`, 20, 80);
-  
-    // Mobile and Email
-    doc.text(`Mobile: ${data.enterprise_data.mobile}`, 20, 90);
-    doc.text(`Email: ${data.enterprise_data.email}`, 20, 100);
-  
-    // Address
-    const address = `${data.enterprise_data.address.door_no}, ${data.enterprise_data.address.building}, ${data.enterprise_data.address.area}, ${data.enterprise_data.address.city}, ${data.enterprise_data.address.state} - ${data.enterprise_data.address.pincode}`;
-    doc.text(`Address: ${address}`, 20, 110);
-  
-    // Date of Incorporation
-    doc.text(`Date of Incorporation: ${data.enterprise_data.date_of_incorporation}`, 20, 120);
-  
-    // Date of Udyam Registration
-    doc.text(`Date of Udyam Registration: ${data.enterprise_data.date_of_udyam_registration}`, 20, 130);
-  
-    // Dic
-    doc.text(`DIC: ${data.enterprise_data.dic}`, 20, 140);
-  
-    // Msme_DI
-    doc.text(`MSME DI: ${data.enterprise_data.msme_di}`, 20, 150);
-  
-    // Social Category
-    doc.text(`Social Category: ${data.enterprise_data.social_category}`, 20, 160);
-  
-    // NIC Data (Check if exists before iterating)
-    // const nicData = data.enterprise_data.nic_data;
-    // if (nicData && nicData.length > 0) {
-    //   doc.text('NIC Data:', 20, 170);
-    //   nicData.forEach((unit, index) => {
-    //     doc.text(`NIC 2 Digit: ${unit.nic_2_digit}`, 20, 180 + index * 10);
-    //     doc.text(`NIC 4 Digit: ${unit.nic_4_digit}`, 20, 190 + index * 10);
-    //     doc.text(`NIC 5 Digit: ${unit.nic_5_digit}`, 20, 200 + index * 10);
-    //   });
-    // } else {
-    //   doc.text('No NIC Data available.', 20, 170);
-    // }
-  
-    // Enterprise Units (Check if exists before iterating)
-    // const enterpriseUnits = data.enterprise_units;
-    // if (enterpriseUnits && enterpriseUnits.length > 0) {
-    //   doc.text('Enterprise Units:', 20, 210);
-    //   enterpriseUnits.forEach((unit, index) => {
-    //     const unitName = `Unit ${index + 1}: ${unit.name}`;
-    //     const unitAddress = `${unit.address.door_no}, ${unit.address.building}, ${unit.address.area}, ${unit.address.city}, ${unit.address.state} - ${unit.address.pincode}`;
-    //     doc.text(unitName, 20, 220 + index * 10);
-    //     doc.text(unitAddress, 20, 230 + index * 10);
-    //   });
-    // } else {
-    //   doc.text('No enterprise units available.', 20, 210);
-    // }
-  
+    doc.setFont("helvetica", "normal");
+    const header = "TO WHOMSOEVER IT MAY CONCERN";
+    doc.text(header, (pageWidth - doc.getTextWidth(header)) / 2, 36);
+
+    // Verification Statement
+    const verificationText = `This is to Certify that ${
+      responseData.verifiedData.data.enterprise_data.name || "N/A"
+    }, Udyam Id No. ${responseData.verifiedData.data.enterprise_data.document_id} is verified from the Udyam portal.`;
+    const verificationSplit = doc.splitTextToSize(verificationText, 180);
+    doc.text(verificationSplit, 14, 50);
+
+    // Define positions and dimensions for the outer border
+    const outerX = 10;
+    const outerY = 62;
+    const outerWidth = 190;
+    const outerHeight = 170;  // Increased to fit all the new data
+
+    // Draw the outer border
+    doc.setDrawColor(0);
+    doc.setLineWidth(0.7);
+    doc.rect(outerX, outerY, outerWidth, outerHeight);
+
+    // Define positions and dimensions for content box
+    const contentX = 14;
+    const contentY = 70;
+    const contentWidth = 120;
+    const contentHeight = 90;
+
+    // User Details Content inside the rectangle
+    const userDetails = [
+      { label: "Enterprise Name", value: responseData.verifiedData.data.enterprise_data.name },
+      { label: "Document ID", value: responseData.verifiedData.data.enterprise_data.document_id },
+      { label: "Major Activity", value: responseData.verifiedData.data.enterprise_data.major_activity },
+      { label: "Enterprise Type", value: responseData.verifiedData.data.enterprise_data.enterprise_type },
+      { label: "Organization Type", value: responseData.verifiedData.data.enterprise_data.organization_type },
+      { label: "Mobile", value: responseData.verifiedData.data.enterprise_data.mobile },
+      { label: "Email", value: responseData.verifiedData.data.enterprise_data.email },
+      { label: "Address", value: `${responseData.verifiedData.data.enterprise_data.address.street}, ${responseData.verifiedData.data.enterprise_data.address.city}, ${responseData.verifiedData.data.enterprise_data.address.state}` },
+      { label: "Udyam Registration Date", value: responseData.verifiedData.data.enterprise_data.date_of_udyam_registration },
+      { label: "MSME DI", value: responseData.verifiedData.data.enterprise_data.msme_di },
+      { label: "DIC", value: responseData.verifiedData.data.enterprise_data.dic },
+      { label: "Date of Incorporation", value: responseData.verifiedData.data.enterprise_data.date_of_incorporation },
+      { label: "Social Category", value: responseData.verifiedData.data.enterprise_data.social_category },
+      { label: "Enterprise Units", value: responseData.verifiedData.data.enterprise_units.map(unit => unit.name).join(", ") }
+    ];
+
+    // NIC Code: Handle long text and wrap it appropriately
+    const nicCode = `${responseData.verifiedData.data.nic_data.nic_2_digit} - ${responseData.verifiedData.data.nic_data.nic_4_digit} - ${responseData.verifiedData.data.nic_data.nic_5_digit}`;
+    const nicCodeSplit = doc.splitTextToSize(nicCode, 130);  // Split if necessary to avoid overflow
+
+    doc.setFont("helvetica", "bold");
+    let yOffset = contentY;
+
+    userDetails.forEach(item => {
+      doc.text(`${item.label} :`, contentX + 2, yOffset + 3);
+      doc.setFont("helvetica", "normal");
+      doc.text(item.value || "N/A", contentX + 54, yOffset + 3);
+      yOffset += 10; // Adjust the Y offset for the next line
+    });
+
+    // Add NIC Code below the user details
+    doc.setFont("helvetica", "bold");
+    doc.text("NIC Code:", contentX + 2, yOffset + 3);  // NIC label
+    doc.setFont("helvetica", "normal");
+    doc.text(nicCodeSplit, contentX + 54, yOffset + 3);  // NIC details
+
+    yOffset += nicCodeSplit.length * 5; // Adjust for the multiline NIC text
+
+    // Footer with signatures
+    doc.setFont("helvetica", "bold");
+    doc.text("Signature of the Authorised Signatory", 14, 241);
+    doc.text("Signature of the Branch Manager", 110, 241);
+
+    doc.setFont("helvetica", "normal");
+    doc.text("Name: __________________", 14, 250);
+    doc.text("Name: __________________", 110, 250);
+
+    doc.text("Designation: ____________", 14, 260);
+    doc.text("Designation: ____________", 110, 260);
+
+    doc.text("Phone no.: ______________", 14, 270);
+    doc.text("Date: ___________________", 110, 270);
+
+    // Bank Seal
+    doc.setFont("helvetica", "normal");
+    doc.text("(Bank Seal)", 14, 283);
+    doc.text("Verified By : User", 120, 283);
+
     // Save PDF
-    doc.save('udyam_aadhaar_verification.pdf');
-  };
+    const fileName = `${responseData.verifiedData.data.enterprise_data.name}_verification_certificate.pdf`;
+    doc.save(fileName);
+};
+
   
   const styles={
     statusBar: {

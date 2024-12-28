@@ -24,7 +24,7 @@ const PanDetail = () => {
 
     try {
       // Sending request to backend API for PAN verification
-      const res = await axios.post('http://localhost:5000/api/pandetail/pandetails_verify', { id_number: idNumber });
+      const res = await axios.post('http://192.168.20.151:4000/api/pandetail/pandetails_verify', { id_number: idNumber });
       
       // Check if response contains status and handle accordingly
       if (res.data.status === 'success') {
@@ -224,7 +224,7 @@ const PanDetail = () => {
         <input
           type="text"
           value={idNumber}
-          onChan        ge={(e) => setIdNumber(e.target.value)}
+          onChange={(e) => setIdNumber(e.target.value)}
           placeholder="Enter PAN Number"
           style={inputStyle}
         />

@@ -20,7 +20,7 @@ const PassportVerification = () => {
     setResponseData(null);
 
     try {
-      const res = await axios.post('http://localhost:5000/api/passport/passport_verify', { 
+      const res = await axios.post('http://192.168.20.151:4000/api/passport/passport_verify', { 
         id_number: idNumber, 
         dob 
       });

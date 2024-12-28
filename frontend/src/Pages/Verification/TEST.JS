@@ -37,7 +37,7 @@ const CreditVerificationPage = () => {
     setResponseData(null);
 
     try {
-      const res = await axios.post('http://localhost:5000/api/credit/credit_report_checker', formData);
+      const res = await axios.post('http://192.168.20.151:4000/api/credit/credit_report_checker', formData);
 
       if (res.data.status === 'success') {
         setResponseData(res.data); // Store the successful response data
