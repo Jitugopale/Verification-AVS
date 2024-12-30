@@ -23,7 +23,7 @@ function UserProfile() {
         }
 
         // Send the token to fetch user data
-        const response = await axios.get('http://192.168.20.151:4000/api/auth/getuser', {
+        const response = await axios.get('http://localhost:5000/api/auth/getuser', {
           headers: {
             'auth-token': token, // Send token in 'auth-token' header as required by fetchuser middleware
           },

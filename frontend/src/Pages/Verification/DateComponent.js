@@ -13,7 +13,7 @@ const DateComponent = () => {
     const fetchVerifiedUsers = async () => {
       try {
         const response = await axios.get(
-          "http://192.168.20.151:4000/api/adhar/verified"
+          "http://localhost:5000/api/adhar/verified"
         );
         setVerifiedUsers(response.data); // Set the fetched data into the state
       } catch (error) {
@@ -33,7 +33,7 @@ const DateComponent = () => {
     // If user clicks "Yes"
     if (isConfirmed) {
       try {
-        const response = await axios.delete(`http://192.168.20.151:4000/api/adhar/delete/${aadharNumber}`);
+        const response = await axios.delete(`http://localhost:5000/api/adhar/delete/${aadharNumber}`);
         
         if (response.data.message === "User deleted successfully.") {
           // If deletion is successful, update state by filtering out the deleted user

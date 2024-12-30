@@ -274,7 +274,7 @@ const handleAdharPdf = (aadhaarDetails) => {
   const handleSendOtp = async () => {
     try {
       // Make a POST request to your backend to send OTP
-      const response = await axios.post("http://192.168.20.151:4000/api/adhar/adhar", {
+      const response = await axios.post("http://localhost:5000/api/adhar/adhar", {
         aadharNumber: aadhaarNumber,
       });
   
@@ -316,7 +316,7 @@ const handleAdharPdf = (aadhaarDetails) => {
       }
 
       const response = await axios.post(
-        "http://192.168.20.151:4000/api/adhar/verifyAadhaarOtp",
+        "http://localhost:5000/api/adhar/verifyAadhaarOtp",
         {
           clientId: clientId,
           OTP: otp,

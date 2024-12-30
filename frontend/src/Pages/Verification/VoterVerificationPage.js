@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { jsPDF } from "jspdf"; // Import jsPDF
+import VoterTable from "./VoterTable";
 
 const VoterVerificationPage = () => {
   const [idNumber, setIdNumber] = useState("");
@@ -21,7 +22,7 @@ const VoterVerificationPage = () => {
 
     try {
       const res = await axios.post(
-        "http://192.168.20.151:4000/api/voter/voter_verify",
+        "http://localhost:5000/api/voter/voter_verify",
         { id_number: idNumber }
       );
       if (res.data.status === "success") {
@@ -254,6 +255,7 @@ const VoterVerificationPage = () => {
 
   
   return (
+    <>
     <div className="container-fluid">
       {/* <div className="d-flex justify-content-center align-items-center">
         <div className="card shadow p-3" style={{ width: "400px" }}>
@@ -429,10 +431,15 @@ const VoterVerificationPage = () => {
          </button>
        </div>
      </div>
+     
    </div>
    
       )}
+      <VoterTable/>
     </div>
+    
+
+    </>
   );
 };
 

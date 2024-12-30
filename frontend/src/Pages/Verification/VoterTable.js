@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { jsPDF } from "jspdf";
-import * as XLSX from "xlsx"; // Import xlsx library
 
-
-const CreditTable = ({ generatePDF }) => {
+const VoterTable = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [verifiedUsers, setVerifiedUsers] = useState([]);
@@ -15,7 +13,7 @@ const CreditTable = ({ generatePDF }) => {
     const fetchVerifiedUsers = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/credit/verified"
+          "http://localhost:5000/api/voter/verified"
         );
         setVerifiedUsers(response.data); // Set the fetched data into the state
       } catch (error) {
@@ -23,55 +21,10 @@ const CreditTable = ({ generatePDF }) => {
       }
     };
     fetchVerifiedUsers();
-  }, []);
+  },[]);
 
 
-  // Function to handle Excel download with proper spacing and formatting
-
-
-const handleExcelDownload = () => {
-  // Map verified users data to Excel format
-  const excelData = verifiedUsers.map((user, index) => ({
-    "Sr No": index + 1,
-    "Pancard No": user.verifiedData?.data?.cCRResponse
-      ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo
-      ?.identityInfo?.pANId?.[0]?.idNumber || "Not available",
-    Name: user.verifiedData?.data?.cCRResponse
-      ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo
-      ?.personalInfo?.name?.fullName || "Not available",
-    "Mobile No": user.verifiedData?.data?.cCRResponse
-      ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo?.phoneInfo
-      ?.find((phone) => phone.typeCode === "M")?.number || "Not available",
-    Address: user.verifiedData?.data?.cCRResponse
-      ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo
-      ?.addressInfo?.[0]?.address || "Not available",
-    "Date of Birth (DOB)": user.verifiedData?.data?.cCRResponse
-      ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo
-      ?.personalInfo?.dateOfBirth || "Not available",
-    "Verification Date": user.formattedDate || "Not available",
-  }));
-
-  // Create a workbook and worksheet
-  const wb = XLSX.utils.book_new();
-  const ws = XLSX.utils.json_to_sheet(excelData);
-
-  // Dynamically calculate column widths for better readability
-  const columnWidths = excelData.reduce((colWidths, row) => {
-    Object.values(row).forEach((cell, colIndex) => {
-      const valueLength = cell ? cell.toString().length : 10;
-      colWidths[colIndex] = Math.max(colWidths[colIndex] || 10, valueLength);
-    });
-    return colWidths;
-  }, []);
-
-  ws["!cols"] = columnWidths.map((width) => ({ wch: width + 2 })); // Add padding to widths
-
-  // Append worksheet to the workbook
-  XLSX.utils.book_append_sheet(wb, ws, "Verified Users");
-
-  // Trigger file download
-  XLSX.writeFile(wb, "Verified_Users.xlsx");
-};
+  
 
   const handleDelete = async (aadharNumber) => {
     // Show confirmation dialog
@@ -80,7 +33,7 @@ const handleExcelDownload = () => {
     // If user clicks "Yes"
     if (isConfirmed) {
       try {
-        const response = await axios.delete(`http://localhost:5000/api/adhar/delete/${aadharNumber}`);
+        const response = await axios.delete(`http://localhost:5000/api/voter/delete/${aadharNumber}`);
         
         if (response.data.message === "User deleted successfully.") {
           // If deletion is successful, update state by filtering out the deleted user
@@ -153,7 +106,81 @@ const handleExcelDownload = () => {
 //     doc.save(`${user.verifiedData?.data?.full_name}_aadhaar_verification.pdf`);
 //   };
 
-
+const handleDownloadPdf = (user) => {
+    try {
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth(); // Page width
+      const pageHeight = doc.internal.pageSize.getHeight(); // Page height
+  
+      // Add a full-page border
+      doc.setDrawColor(0); // Black color
+      doc.setLineWidth(0.7); // Border thickness
+      doc.rect(5, 5, pageWidth - 10, pageHeight - 10); // Draw rectangle with a 5-unit margin from each edge
+  
+      // Center-aligned title
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(25);
+      const title = "Shankar Nagari Sahakari Bank Ltd";
+      doc.text(title, (pageWidth - doc.getTextWidth(title)) / 2, 20);
+  
+      // Center-aligned subtitle
+      doc.setFontSize(14);
+      const subtitle = "Voter Id Verification Certificate";
+      doc.text(subtitle, (pageWidth - doc.getTextWidth(subtitle)) / 2, 28);
+  
+      // Center-aligned section header
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "normal");
+      const header = "TO WHOMSOEVER IT MAY CONCERN";
+      doc.text(header, (pageWidth - doc.getTextWidth(header)) / 2, 36);
+  
+      // Verification Statement
+      const name = user?.verifiedData?.data?.name || "N/A";
+      const idNumber = user?.id_number || "N/A";
+      const verificationText = `This is to Certify that ${name}, Voter Id No. ${idNumber} are verified from link.`;
+      const verificationSplit = doc.splitTextToSize(verificationText, 180);
+      doc.text(verificationSplit, 14, 50);
+  
+      // User Details Content
+      const userDetails = [
+        { label: "Status", value: "success" },
+        { label: "Id Number", value: idNumber },
+        { label: "Name", value: name },
+        { label: "Age", value: user?.verifiedData?.data?.age?.toString() || "N/A" },
+        { label: "Gender", value: user?.verifiedData?.data?.gender || "N/A" },
+        { label: "Relation Name", value: user?.verifiedData?.data?.relation_name || "N/A" },
+        { label: "Relation Type", value: user?.verifiedData?.data?.relation_type || "N/A" },
+        { label: "State", value: user?.verifiedData?.data?.state || "N/A" },
+        { label: "District", value: user?.verifiedData?.data?.district || "N/A" },
+        { label: "Polling Station", value: user?.verifiedData?.data?.polling_station || "N/A" },
+        { label: "Assembly Constituency", value: user?.verifiedData?.data?.assembly_constituency || "N/A" },
+        { label: "Constituency Number", value: user?.verifiedData?.data?.assembly_constituency_number || "N/A" },
+        { label: "Part Number", value: user?.verifiedData?.data?.part_number || "N/A" },
+        { label: "Part Name", value: user?.verifiedData?.data?.part_name || "N/A" },
+        { label: "Parliamentary Name", value: user?.verifiedData?.data?.parliamentary_name || "N/A" },
+        { label: "Parliamentary Number", value: user?.verifiedData?.data?.parliamentary_number || "N/A" },
+      ];
+  
+      doc.setFont("helvetica", "bold");
+      let yOffset = 70;
+  
+      userDetails.forEach((item) => {
+        doc.text(`${item.label} :`, 14, yOffset);
+        doc.setFont("helvetica", "normal");
+        doc.text(item.value, 60, yOffset);
+        yOffset += 10;
+      });
+  
+      // Save PDF
+      const fileName = `${name}_verification_certificate.pdf`;
+      doc.save(fileName);
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+    }
+  };
+  
+  
+  
 
   return (
     <>
@@ -161,29 +188,21 @@ const handleExcelDownload = () => {
                   marginTop:'120px'
                 }}>Verified Users</h3>
       <div className="row mb-5">
-        <div className="col-md-2 d-flex">
-        <span>From Date</span>
-
+        <div className="col-md-2">
           <input
-          style={{marginLeft:'10px'}}
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
             placeholder="Start Date"
           />
         </div>
-        <div className="col-md-2 d-flex offset-md-2">
-        <span>From Date</span>
-
+        <div className="col-md-2 offset-md-8">
           <input
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
             placeholder="End Date"
           />
-        </div>
-        <div className="col-2">
-          <button onClick={handleExcelDownload}>Excel Download</button>
         </div>
       </div>
 
@@ -204,7 +223,7 @@ const handleExcelDownload = () => {
                   textAlign: "left",
                 }}
               >
-                Pancard No
+                Voter ID
               </th>
               <th
                 style={{
@@ -222,7 +241,7 @@ const handleExcelDownload = () => {
                   textAlign: "left",
                 }}
               >
-                Mobile No
+                Age
               </th>
               <th
                 style={{
@@ -231,7 +250,7 @@ const handleExcelDownload = () => {
                   textAlign: "left",
                 }}
               >
-                Address
+                Gender
               </th>
               <th
                 style={{
@@ -240,7 +259,25 @@ const handleExcelDownload = () => {
                   textAlign: "left",
                 }}
               >
-                DOB
+                District
+              </th>
+              <th
+                style={{
+                  padding: "8px",
+                  border: "1px solid #ddd",
+                  textAlign: "left",
+                }}
+              >
+                State
+              </th>
+              <th
+                style={{
+                  padding: "8px",
+                  border: "1px solid #ddd",
+                  textAlign: "left",
+                }}
+              >
+                Polling Station
               </th>
               <th
                 style={{
@@ -260,15 +297,6 @@ const handleExcelDownload = () => {
               >
                 Download
               </th>
-              {/* <th
-                style={{
-                  padding: "8px",
-                  border: "1px solid #ddd",
-                  textAlign: "left",
-                }}
-              >
-                Delete
-              </th> */}
             </tr>
           </thead>
           <tbody>
@@ -303,29 +331,20 @@ const handleExcelDownload = () => {
               })
               .map((user, index) => (
                 <tr key={index} style={{ border: "1px solid #ddd" }}>
+                                    <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.id_number}</td>
+
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData.data.name}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData?.data?.age || "Name not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData?.data?.gender || "Gender not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData?.data.district || "DOB not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData?.data.state || "DOB not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData?.data.polling_station || "DOB not available"}</td>
+
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.formattedDate || "DOB not available"}</td>
+
                   <td style={{ padding: "8px", border: "1px solid #ddd" }}>
-                  {user.verifiedData?.data?.cCRResponse
-                        ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo
-                        ?.identityInfo?.pANId?.[0]?.idNumber  || "Not available"}
-                  </td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData?.data?.cCRResponse
-                        ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo
-                        ?.personalInfo?.name?.fullName  || "Not available"}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData?.data?.cCRResponse?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo?.phoneInfo?.find(
-                        (phone) => phone.typeCode === "M"
-                      )?.number  || "Not available"}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData?.data?.cCRResponse
-                        ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo
-                        ?.addressInfo?.[0]?.address  || "Not available"}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData?.data?.cCRResponse
-                        ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo
-                        ?.personalInfo?.dateOfBirth || "Not available"}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>
-                    {user.formattedDate  || "Not available"}
-                </td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>
-                    <button 
-                      onClick={generatePDF}
+                    <button
+                      onClick={() => handleDownloadPdf(user)}
                       title="Download PDF"
                       style={{
                         backgroundColor: "#4CAF50",
@@ -361,9 +380,24 @@ const handleExcelDownload = () => {
           </tbody>
         </table>
       </div>
-     
+      {/* <button
+        onClick={() => {
+          localStorage.clear(); // Clears all data from localStorage
+          alert("All local storage data has been cleared!");
+        }}
+        style={{
+          padding: "10px 20px",
+          backgroundColor: "#FF6347", // Color for the button
+          color: "white",
+          border: "none",
+          borderRadius: "5px",
+          cursor: "pointer",
+        }}
+      >
+        Clear All Data
+      </button> */}
     </>
   );
 };
 
-export default CreditTable;
+export default VoterTable;

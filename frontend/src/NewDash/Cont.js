@@ -24,7 +24,7 @@ const Cont = () => {
     // Fetch the data from the API
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://192.168.20.151:4000/api/count//verification-count');
+        const response = await axios.get('http://localhost:5000/api/count//verification-count');
         const data = response.data;
 
         // Prepare chart data

@@ -63,7 +63,7 @@ const CreditVerificationPage = () => {
 
     try {
       const res = await axios.post(
-        "http://192.168.20.151:4000/api/credit/credit_report_checker",
+        "http://localhost:5000/api/credit/credit_report_checker",
         formData
       );
 
@@ -151,7 +151,7 @@ const CreditVerificationPage = () => {
     const fetchVerificationCounts = async () => {
       try {
         const response = await axios.get(
-          "http://192.168.20.151:4000/api/count/verification-count"
+          "http://localhost:5000/api/count/verification-count"
         );
         if (response.status === 200) {
           const filteredData = Object.keys(response.data)

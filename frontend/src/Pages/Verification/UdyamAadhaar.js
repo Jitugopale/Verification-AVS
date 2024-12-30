@@ -21,7 +21,7 @@ const UdyamAadhaar = () => {
 
     try {
       // API call to your backend with the correct variable name in the payload
-      const res = await axios.post('http://192.168.20.151:4000/api/udyam/udyam_aadhaar_verify', { udyam_aadhaar: udyamAadhaar });
+      const res = await axios.post('http://localhost:5000/api/udyam/udyam_aadhaar_verify', { udyam_aadhaar: udyamAadhaar });
       setResponseData(res.data);  // Store the response data in state
     } catch (err) {
       // Displaying detailed error if available
