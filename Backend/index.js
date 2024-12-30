@@ -282,6 +282,44 @@ app.delete('/api/pan/delete/:pannumber', async (req, res) => {
   }
 });
 
+//Credit
+
+app.get("/api/credit/verified", async (req, res) => {
+  try {
+    // Fetch all documents in the "Adhar" collection
+    const verifiedUsers = await CREDIT.find(); // Ensure 'Adhar' model is correctly referenced
+
+    if (verifiedUsers.length === 0) {
+      return res.status(404).json({ message: "No verified users found." });
+    }
+
+    res.status(200).json(verifiedUsers); // Send the list of verified users
+  } catch (error) {
+    console.error(error); // Log the error for debugging purposes
+    res.status(500).json({ message: "Failed to fetch verified users." });
+  }
+});
+
+// In your Express backend:
+app.delete('/api/credit/delete/:document_id', async (req, res) => {
+  try {
+    const { pannumber } = req.params;
+
+    // Find and delete the user with the specified Aadhaar number
+    const result = await CREDIT.deleteOne({ document_id });
+
+
+    if (result.deletedCount === 1) {
+      res.json({ message: "User deleted successfully." });
+    } else {
+      res.status(404).json({ message: "User not found." });
+    }
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    res.status(500).json({ message: "Failed to delete user." });
+  }
+});
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

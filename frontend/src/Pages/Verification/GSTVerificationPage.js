@@ -162,7 +162,7 @@ const inputStyle = {
     </div> */}
 
 <div className="d-flex align-items-center">
-        <div className=" p-3" style={{width:'1200px'}}>
+        <div className=" p-3" style={{maxWidth: '1200px', width: '100%'}}>
           <h1 className="card-title" style={{color:'green'}}>GST Verification</h1>
           <div style={styles.statusBar} className='mt-2'>
           <span>No. Of Count: 36</span>

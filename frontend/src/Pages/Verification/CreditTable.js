@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { jsPDF } from "jspdf";
+import * as XLSX from "xlsx"; // Import xlsx library
 
-const DateComponent = () => {
+
+const CreditTable = ({ generatePDF }) => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [verifiedUsers, setVerifiedUsers] = useState([]);
@@ -13,7 +15,7 @@ const DateComponent = () => {
     const fetchVerifiedUsers = async () => {
       try {
         const response = await axios.get(
-          "http://192.168.20.151:4000/api/adhar/verified"
+          "http://localhost:5000/api/credit/verified"
         );
         setVerifiedUsers(response.data); // Set the fetched data into the state
       } catch (error) {
@@ -21,10 +23,55 @@ const DateComponent = () => {
       }
     };
     fetchVerifiedUsers();
-  },[]);
+  }, []);
 
 
-  
+  // Function to handle Excel download with proper spacing and formatting
+
+
+const handleExcelDownload = () => {
+  // Map verified users data to Excel format
+  const excelData = verifiedUsers.map((user, index) => ({
+    "Sr No": index + 1,
+    "Pancard No": user.verifiedData?.data?.cCRResponse
+      ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo
+      ?.identityInfo?.pANId?.[0]?.idNumber || "Not available",
+    Name: user.verifiedData?.data?.cCRResponse
+      ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo
+      ?.personalInfo?.name?.fullName || "Not available",
+    "Mobile No": user.verifiedData?.data?.cCRResponse
+      ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo?.phoneInfo
+      ?.find((phone) => phone.typeCode === "M")?.number || "Not available",
+    Address: user.verifiedData?.data?.cCRResponse
+      ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo
+      ?.addressInfo?.[0]?.address || "Not available",
+    "Date of Birth (DOB)": user.verifiedData?.data?.cCRResponse
+      ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo
+      ?.personalInfo?.dateOfBirth || "Not available",
+    "Verification Date": user.formattedDate || "Not available",
+  }));
+
+  // Create a workbook and worksheet
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.json_to_sheet(excelData);
+
+  // Dynamically calculate column widths for better readability
+  const columnWidths = excelData.reduce((colWidths, row) => {
+    Object.values(row).forEach((cell, colIndex) => {
+      const valueLength = cell ? cell.toString().length : 10;
+      colWidths[colIndex] = Math.max(colWidths[colIndex] || 10, valueLength);
+    });
+    return colWidths;
+  }, []);
+
+  ws["!cols"] = columnWidths.map((width) => ({ wch: width + 2 })); // Add padding to widths
+
+  // Append worksheet to the workbook
+  XLSX.utils.book_append_sheet(wb, ws, "Verified Users");
+
+  // Trigger file download
+  XLSX.writeFile(wb, "Verified_Users.xlsx");
+};
 
   const handleDelete = async (aadharNumber) => {
     // Show confirmation dialog
@@ -106,148 +153,7 @@ const DateComponent = () => {
 //     doc.save(`${user.verifiedData?.data?.full_name}_aadhaar_verification.pdf`);
 //   };
 
-const handleDownloadPdf = (user) => {
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.getWidth(); // Page width
-    const pageHeight = doc.internal.pageSize.getHeight(); // Page height
-  
-    // Add a full-page border
-    doc.setDrawColor(0); // Black color
-    doc.setLineWidth(0.7); // Border thickness
-    doc.rect(5, 5, pageWidth - 10, pageHeight - 10); // Draw rectangle with a 5-unit margin from each edge
-  
-    // Center-aligned title
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(25);
-    const title = "Shankar Nagari Sahakari Bank Ltd";
-    doc.text(title, (pageWidth - doc.getTextWidth(title)) / 2, 20);
-  
-    // Center-aligned subtitle
-    doc.setFontSize(14);
-    const subtitle = "Aadhar Verification Certificate";
-    doc.text(subtitle, (pageWidth - doc.getTextWidth(subtitle)) / 2, 28);
-  
-    // Center-aligned section header
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "normal");
-    const header = "TO WHOMSOEVER IT MAY CONCERN";
-    doc.text(header, (pageWidth - doc.getTextWidth(header)) / 2, 36);
-  
-    // Verification Statement
-    const verificationText = `This is to Certify that ${
-      user.verifiedData?.data?.full_name || "N/A"
-    }, Aadhaar no. ${
-      user.aadharNumber ? user.aadharNumber.toString() : "N/A"
-    } are verified from https://uidai.gov.in/ using with OTP.`;
-    const verificationSplit = doc.splitTextToSize(verificationText, 180);
-    doc.text(verificationSplit, 14, 50);
-  
-    // Define positions and dimensions for the outer border
-    const outerX = 10;
-    const outerY = 65;
-    const outerWidth = 190;
-    const outerHeight = 80;
-  
-    // Draw the outer border
-    doc.setDrawColor(0);
-    doc.setLineWidth(0.7);
-    doc.rect(outerX, outerY, outerWidth, outerHeight);
-  
-    // Define positions and dimensions for content box
-    const contentX = 14;
-    const contentY = 70;
-    const contentWidth = 120;
-    const contentHeight = 90;
-  
-    // Define positions and dimensions for the profile image box
-    const imageX = 150;
-    const imageY = 70;
-    const imageWidth = 40;
-    const imageHeight = 40;
-  
-    // User Details Content
-    doc.setFont("helvetica", "bold");
-    doc.text("Name                    :", contentX + 2, contentY + 5);
-    doc.setFont("helvetica", "normal");
-    doc.text(user.verifiedData?.data?.full_name || "N/A", contentX + 40, contentY + 5);
-  
-    doc.setFont("helvetica", "bold");
-    doc.text("Aadhaar Number :", contentX + 2, contentY + 15);
-    doc.setFont("helvetica", "normal");
-    doc.text(user.aadharNumber ? user.aadharNumber.toString() : "N/A", contentX + 40, contentY + 15);
-  
-    doc.setFont("helvetica", "bold");
-    doc.text("DOB                      :", contentX + 2, contentY + 25);
-    doc.setFont("helvetica", "normal");
-    doc.text(user.verifiedData?.data?.dob || "N/A", contentX + 40, contentY + 25);
-  
-    doc.setFont("helvetica", "bold");
-    doc.text("Gender                  : ", contentX + 2, contentY + 35);
-    doc.setFont("helvetica", "normal");
-    doc.text(user.verifiedData?.data?.gender || "N/A", contentX + 40, contentY + 35);
-  
-    doc.setFont("helvetica", "bold");
-    doc.text("Address                : ", contentX + 2, contentY + 45);
-    doc.setFont("helvetica", "normal");
-    const addressLines = [
-      user?.verifiedData?.data?.address?.house,
-      user?.verifiedData?.data?.address?.street,
-      user?.verifiedData?.data?.address?.landmark,
-      user?.verifiedData?.data?.address?.loc,
-      user?.verifiedData?.data?.address?.po,
-      user?.verifiedData?.data?.address?.subdist,
-      user?.verifiedData?.data?.address?.dist,
-      user?.verifiedData?.data?.address?.state,
-      user?.verifiedData?.data?.address?.country,
-      user?.verifiedData?.data?.zip,
-    ]
-      .filter(Boolean)
-      .join(", ");
-    const addressSplit = doc.splitTextToSize(addressLines || "N/A", contentWidth - 50);
-    doc.text(addressSplit, contentX + 40, contentY + 45);
-  
-    // Draw the rectangle for the profile image
-    doc.setLineWidth(0.5);
-    doc.rect(imageX, imageY, imageWidth, imageHeight);
-  
-    // Add the profile image or fallback text
-    if (user.verifiedData?.data?.profile_image) {
-      const imageData = `data:image/jpeg;base64,${user.verifiedData.data.profile_image}`;
-      doc.addImage(imageData, "JPEG", imageX, imageY, imageWidth, imageHeight);
-    } else {
-      doc.setFont("helvetica", "italic");
-      doc.setFontSize(10);
-      doc.text("Profile image not available", imageX + 5, imageY + 20);
-    }
-  
-    // Footer with signatures
-    doc.setFont("helvetica", "bold");
-    doc.text("Signature of the Authorised Signatory", 14, 170);
-    doc.text("Signature of the Branch Manager", 110, 170);
-  
-    doc.setFont("helvetica", "normal");
-    doc.text("Name: __________________", 14, 180);
-    doc.text("Name: __________________", 110, 180);
-  
-    doc.text("Designation: ____________", 14, 190);
-    doc.text("Designation: ____________", 110, 190);
-  
-    doc.text("Phone no.: ______________", 14, 200);
-    doc.text("Date: ___________________", 110, 200);
-  
-    // Bank Seal
-    doc.setFont("helvetica", "normal");
-    doc.text("(Bank Seal)", 14, 220);
-    doc.text("Verified By : User", 120, 220);
-  
-    // Save PDF
-    const fileName = user.verifiedData?.data?.full_name
-      ? `${user.verifiedData.data.full_name}_verification_certificate.pdf`
-      : "verification_certificate.pdf";
-    doc.save(fileName);
-  };
-  
-  
+
 
   return (
     <>
@@ -255,21 +161,29 @@ const handleDownloadPdf = (user) => {
                   marginTop:'120px'
                 }}>Verified Users</h3>
       <div className="row mb-5">
-        <div className="col-md-2">
+        <div className="col-md-2 d-flex">
+        <span>From Date</span>
+
           <input
+          style={{marginLeft:'10px'}}
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
             placeholder="Start Date"
           />
         </div>
-        <div className="col-md-2 offset-md-8">
+        <div className="col-md-2 d-flex offset-md-2">
+        <span>From Date</span>
+
           <input
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
             placeholder="End Date"
           />
+        </div>
+        <div className="col-2">
+          <button onClick={handleExcelDownload}>Excel Download</button>
         </div>
       </div>
 
@@ -290,16 +204,7 @@ const handleDownloadPdf = (user) => {
                   textAlign: "left",
                 }}
               >
-                Photo
-              </th>
-              <th
-                style={{
-                  padding: "8px",
-                  border: "1px solid #ddd",
-                  textAlign: "left",
-                }}
-              >
-                Aadhaar Number
+                Pancard No
               </th>
               <th
                 style={{
@@ -317,16 +222,7 @@ const handleDownloadPdf = (user) => {
                   textAlign: "left",
                 }}
               >
-                Gender
-              </th>
-              <th
-                style={{
-                  padding: "8px",
-                  border: "1px solid #ddd",
-                  textAlign: "left",
-                }}
-              >
-                DOB
+                Mobile No
               </th>
               <th
                 style={{
@@ -344,6 +240,15 @@ const handleDownloadPdf = (user) => {
                   textAlign: "left",
                 }}
               >
+                DOB
+              </th>
+              <th
+                style={{
+                  padding: "8px",
+                  border: "1px solid #ddd",
+                  textAlign: "left",
+                }}
+              >
                 Verification Date
               </th>
               <th
@@ -353,9 +258,9 @@ const handleDownloadPdf = (user) => {
                   textAlign: "left",
                 }}
               >
-                Action
+                Download
               </th>
-              <th
+              {/* <th
                 style={{
                   padding: "8px",
                   border: "1px solid #ddd",
@@ -363,7 +268,7 @@ const handleDownloadPdf = (user) => {
                 }}
               >
                 Delete
-              </th>
+              </th> */}
             </tr>
           </thead>
           <tbody>
@@ -399,27 +304,28 @@ const handleDownloadPdf = (user) => {
               .map((user, index) => (
                 <tr key={index} style={{ border: "1px solid #ddd" }}>
                   <td style={{ padding: "8px", border: "1px solid #ddd" }}>
-                  <img
-                    src={`data:image/jpeg;base64,${user.verifiedData.data.profile_image}`}
-                    alt="Aadhaar Profile"
-                    style={{ width: "150px", height: "150px", borderRadius: "5%" }}
-                    />
+                  {user.verifiedData?.data?.cCRResponse
+                        ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo
+                        ?.identityInfo?.pANId?.[0]?.idNumber  || "Not available"}
                   </td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.aadharNumber}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData?.data?.full_name || "Name not available"}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData?.data?.gender || "Gender not available"}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData?.data?.dob || "DOB not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData?.data?.cCRResponse
+                        ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo
+                        ?.personalInfo?.name?.fullName  || "Not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData?.data?.cCRResponse?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo?.phoneInfo?.find(
+                        (phone) => phone.typeCode === "M"
+                      )?.number  || "Not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData?.data?.cCRResponse
+                        ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo
+                        ?.addressInfo?.[0]?.address  || "Not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData?.data?.cCRResponse
+                        ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo
+                        ?.personalInfo?.dateOfBirth || "Not available"}</td>
                   <td style={{ padding: "8px", border: "1px solid #ddd" }}>
-                    {[user?.verifiedData?.data?.address?.house, user?.verifiedData?.data?.address?.street, user?.verifiedData?.data?.address?.landmark, user?.verifiedData?.data?.address?.loc, user?.verifiedData?.data?.address?.po, user?.verifiedData?.data?.address?.subdist, user?.verifiedData?.data?.address?.dist, user?.verifiedData?.data?.address?.state, user?.verifiedData?.data?.address?.country, user?.verifiedData?.data?.address?.zip]
-                    .filter(Boolean)
-                    .join(", ") || "No Address Available"}
+                    {user.formattedDate  || "Not available"}
                 </td>
                   <td style={{ padding: "8px", border: "1px solid #ddd" }}>
-                  {user.formattedDate || "DOB not available"}
-                  </td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>
-                    <button
-                      onClick={() => handleDownloadPdf(user)}
+                    <button 
+                      onClick={generatePDF}
                       title="Download PDF"
                       style={{
                         backgroundColor: "#4CAF50",
@@ -433,7 +339,7 @@ const handleDownloadPdf = (user) => {
                       <box-icon name='download'></box-icon>
                     </button>
                   </td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>
+                  {/* <td style={{ padding: "8px", border: "1px solid #ddd" }}>
                     <button
                     onClick={() => handleDelete(user.aadharNumber)}
                     title="Delete"
@@ -449,30 +355,15 @@ const handleDownloadPdf = (user) => {
                       <box-icon name="trash" type="solid"></box-icon>
 
                     </button>
-                </td>
+                </td> */}
                 </tr>
               ))}
           </tbody>
         </table>
       </div>
-      {/* <button
-        onClick={() => {
-          localStorage.clear(); // Clears all data from localStorage
-          alert("All local storage data has been cleared!");
-        }}
-        style={{
-          padding: "10px 20px",
-          backgroundColor: "#FF6347", // Color for the button
-          color: "white",
-          border: "none",
-          borderRadius: "5px",
-          cursor: "pointer",
-        }}
-      >
-        Clear All Data
-      </button> */}
+     
     </>
   );
 };
 
-export default DateComponent;
+export default CreditTable;

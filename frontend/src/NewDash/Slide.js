@@ -49,7 +49,7 @@ const Slide = () => {
               className="dropdown-toggle"
               aria-expanded={isOpen}
             >
-              API Verification
+              Verification
               <i
                 className={`bx ms-2 ${
                   isOpen ? "bx-chevron-down" : "bx-chevron-right"
@@ -167,7 +167,7 @@ const Slide = () => {
                   id="pageSubmenu"
                 >
                   <li>
-                    <Link to="credit">CREDIT REPORT EQUIFAX</Link>
+                    <Link to="credit">COMBO CIBIL</Link>
                   </li>
                 </ul>
               </li>

@@ -77,7 +77,7 @@ const PassportVerification = () => {
     doc.setFont('helvetica', 'bold');
     doc.text(`File Number:`, labelXPosition, yPosition);
     doc.setFont('helvetica', 'normal');
-    doc.text(`${responseData.file_number}`, valueXPosition, yPosition);
+    doc.text(`${data.file_number}`, valueXPosition, yPosition);
     yPosition += 10;
 
     // Full Name
@@ -141,7 +141,7 @@ const PassportVerification = () => {
   return (
     <div className="container-fluid">
       <div className="d-flex align-items-center">
-        <div className="p-3" style={{ width: '1200px', maxWidth:'1000px' }}>
+        <div className="p-3" style={{ maxWidth: '1200px', width: '100%' }}>
         <h2 className="mb-4" style={{color:'green'}}>PassPort Verification</h2>
           <div style={styles.statusBar} className='mt-2'>
           <span>No. Of Count: 36</span>

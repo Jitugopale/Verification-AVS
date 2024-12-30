@@ -7,7 +7,7 @@ const Loan = ({ data, key, loanData, enquiryId }) => {
 
   return (
     <>
-      <div className="container my-4 border" style={{ fontSize: "85%" }}>
+      <div className="container my-4 border">
         <div className="row my-3 p-4">
           <div className="col-12 text-center">
             <h1 className="text-primary">CIBIL Combo Report</h1>
@@ -16,12 +16,12 @@ const Loan = ({ data, key, loanData, enquiryId }) => {
         <div className="row my-3"  style={{margin:"20px"}}>
           <div className="col-md-4">
             <table className="table table-borderless">
-              <tbody>
+              <tbody style={{lineHeight:'10px'}}>
                 <tr>
                   <td>
                     <strong>Consumer Name:</strong>
                   </td>
-                  <td>
+                  <td style={{paddingLeft:'4px'}}>
                     {
                       data?.verifiedData?.data?.cCRResponse
                         ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo
@@ -33,26 +33,26 @@ const Loan = ({ data, key, loanData, enquiryId }) => {
                   <td>
                     <strong>Enquiry ID:</strong>
                   </td>
-                  <td>{enquiryId}</td>
+                  <td style={{paddingLeft:'4px'}}>{enquiryId}</td>
                 </tr>
                 <tr>
                   <td>
                     <strong>Member Reference No:</strong>
                   </td>
-                  <td>{data?.verifiedData?.reference_id}</td>
+                  <td style={{paddingLeft:'4px'}}>{data?.verifiedData?.reference_id}</td>
                 </tr>
-                <tr>
+                {/* <tr>
                   <td>
                     <strong>Branch ID:</strong>
                   </td>
                   <td>1123</td>
-                </tr>
+                </tr> */}
               </tbody>
             </table>
           </div>
           <div className="col-md-4 offset-md-4">
             <table className="table table-borderless">
-              <tbody>
+              <tbody style={{lineHeight:'10px'}}>
                 <tr>
                   <td>
                     <strong>Date:</strong>
@@ -65,7 +65,7 @@ const Loan = ({ data, key, loanData, enquiryId }) => {
                   </td>
                   <td>09:46:12</td>
                 </tr>
-                <tr>
+                {/* <tr>
                   <td>
                     <strong>Control Number:</strong>
                   </td>
@@ -76,13 +76,13 @@ const Loan = ({ data, key, loanData, enquiryId }) => {
                     <strong>Kendra / Centre:</strong>
                   </td>
                   <td />
-                </tr>
+                </tr> */}
               </tbody>
             </table>
           </div>
         </div>
         <div className="p-4">
-          <div className="row my-2">
+          {/* <div className="row my-2">
             <div className="col-12">
               <table
                 className="table table-bordered data-table"
@@ -197,7 +197,7 @@ const Loan = ({ data, key, loanData, enquiryId }) => {
                 </tbody>
               </table>
             </div>
-          </div>
+          </div> */}
 
           <div className="sub-title">
             ACCOUNT STATUS:

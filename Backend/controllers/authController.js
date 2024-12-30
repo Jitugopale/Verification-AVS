@@ -619,6 +619,19 @@ async function verifyOtp(clientId, OTP, token,aadharNumber, res) {
 //   }
 // };
 
+const generateEnquiryId = () => {
+  // Generate random 8-digit number (from 10000000 to 99999999)
+  const middlePart = Math.floor(10000000 + Math.random() * 90000000);
+
+  // Generate random 2-digit number (from 10 to 99)
+  const suffix = Math.floor(10 + Math.random() * 90);
+
+  // Combine prefix, middle part, and suffix
+  const enquiryId = `MF${middlePart}_${suffix}`;
+
+  return enquiryId;
+};
+
 export const creditReportCheckController = async (req, res) => {
   const {name, mobile, document_id, date_of_birth, address, pincode } = req.body;
 
@@ -626,7 +639,11 @@ export const creditReportCheckController = async (req, res) => {
     return res.status(400).json({ error: 'Missing required fields' });
 }
 
-  // Check if CREDIT already exists in the database
+ 
+
+  try {
+
+     // Check if CREDIT already exists in the database
   const existingCredit = await CREDIT.findOne({ document_id });
   if (existingCredit) {
       return res.status(200).json({
@@ -636,14 +653,15 @@ export const creditReportCheckController = async (req, res) => {
       });
   }
 
+   // Generate a new enquiry ID
+   const enquiryId = generateEnquiryId();
+
   const payload = {
       timestamp: Math.floor(Date.now() / 1000),
       partnerId: 'CORP0000363',
       reqid: "5436456",
   };
   const token = jwt.sign(payload, 'UTA5U1VEQXdNREF6TmpOUFZHc3lUMVJuZWs1cVFYbE5VVDA5');
-
-  try {
       const response = await axios.post(
           'https://api.verifya2z.com/api/v1/verification/credit_report_checker',
           { name, mobile, document_id, date_of_birth, address, pincode },
@@ -691,6 +709,7 @@ export const creditReportCheckController = async (req, res) => {
         createdAt: currentDateTime, // ISO timestamp
         formattedDate, // "DD-MM-YYYY"
         formattedTime, // "hh:mm AM/PM"
+        enquiryId, // Store generated enquiryId
         verifiedData: response.data, // Store response data in verifiedData field
       });
   

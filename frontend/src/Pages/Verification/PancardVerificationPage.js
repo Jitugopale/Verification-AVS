@@ -207,7 +207,7 @@ const inputStyle = {
       <div className="container d-flex align-items-center">
       <div
         className="p-2 mt-2"
-        style={{ width: "100%", maxWidth: "1000px" }}
+        style={{ maxWidth: '1200px', width: '100%' }}
       >
         <h2 className="mb-4">PAN Card Verification</h2>
           <div style={styles.statusBar} className='mt-2'>

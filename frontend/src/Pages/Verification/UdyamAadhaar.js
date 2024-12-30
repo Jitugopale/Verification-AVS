@@ -177,7 +177,7 @@ const UdyamAadhaar = () => {
   return (
     <div className="container-fluid">
       <div className="d-flex align-items-center">
-        <div className="p-3" style={{ width: "100%", maxWidth: "1000px" }}>
+        <div className="p-3" style={{ maxWidth: '1200px', width: '100%' }}>
         <h1 className="card-title" style={{color:'green'}}>Udyam Aadhaar Verification</h1>
           <div style={styles.statusBar} className='mt-3'>
           <span>No. Of Count: 36</span>

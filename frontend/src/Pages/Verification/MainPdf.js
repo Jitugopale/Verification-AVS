@@ -1,17 +1,40 @@
 import React from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
+
 
 const MainPdf = ({ data, enquiryId }) => {
+  // Fetch the verified users from the backend
+   const [verifiedUsers, setVerifiedUsers] = useState([]);
+  
+  useEffect(() => {
+    const fetchVerifiedUsers = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:5000/api/credit/verified"
+        );
+        setVerifiedUsers(response.data); // Set the fetched data into the state
+      } catch (error) {
+        console.error("Error fetching verified users:", error);
+      }
+    };
+    fetchVerifiedUsers();
+  }, []);
   return (
     <>
-      <div className="container border p-5" style={{ fontSize: "85%" }}>
+      <div className="container border p-5" >
+      <div className="row my-3 p-4">
+          <div className="col-12">
+            <h1 className="text-primary text-center">CIBIL Combo Report</h1>
+          </div>
+        </div>
         <div className="row mb-4">
-          <h1 className="">CIBIL COMBO REPORT</h1>
           <div className="col-md-4" id="firstheader">
             <table className="table table-borderless">
-              <tbody>
+              <tbody style={{lineHeight:'10px'}}>
                 <tr>
                   <th>Consumer Name</th>
-                  <td>
+                  <td style={{paddingLeft:'4px'}}>
                     {
                       data?.verifiedData?.data?.cCRResponse
                         ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo
@@ -21,16 +44,16 @@ const MainPdf = ({ data, enquiryId }) => {
                 </tr>
                 <tr>
                   <th>Enquiry ID</th>
-                  <td>{enquiryId}</td>
+                  <td style={{paddingLeft:'4px'}}>{enquiryId}</td>
                 </tr>
                 <tr>
                   <th>Member Reference No</th>
-                  <td>{data?.verifiedData?.reference_id}</td>
+                  <td style={{paddingLeft:'4px'}}>{data?.verifiedData?.reference_id}</td>
                 </tr>
-                <tr>
+                {/* <tr>
                   <th>Branch ID</th>
                   <td />
-                </tr>
+                </tr> */}
               </tbody>
             </table>
           </div>
@@ -39,7 +62,7 @@ const MainPdf = ({ data, enquiryId }) => {
               className="table table-borderless"
               style={{ borderWidth: "0.5px" }}
             >
-              <tbody>
+              <tbody style={{lineHeight:'10px'}}>
                 <tr>
                   <th>Date</th>
                   <td>16-12-2024</td>
@@ -48,14 +71,14 @@ const MainPdf = ({ data, enquiryId }) => {
                   <th>Time</th>
                   <td>09:46:12</td>
                 </tr>
-                <tr>
+                {/* <tr>
                   <th>Control Number</th>
                   <td>N/A</td>
-                </tr>
-                <tr>
+                </tr> */}
+                {/* <tr>
                   <th>Kendra/Centre</th>
                   <td />
-                </tr>
+                </tr> */}
               </tbody>
             </table>
           </div>
@@ -215,13 +238,9 @@ const MainPdf = ({ data, enquiryId }) => {
                         ?.personalInfo?.dateOfBirth
                     }
                   </td>
-                  <th>CKYC</th>
+                  <th>UID</th>
                   <td>
-                    {
-                      data?.verifiedData?.data?.cCRResponse
-                        ?.cIRReportDataLst?.[0]?.cIRReportData?.identityInfo
-                        ?.otherId?.[0]?.idNumber
-                    }
+                  XXXXXXXXXXXX
                   </td>
                   <th>Mobile</th>
                   <td>
@@ -241,17 +260,17 @@ const MainPdf = ({ data, enquiryId }) => {
                         ?.personalInfo?.gender
                     }
                   </td>
-                  <th>UID</th>
-                  <td>XXXXXXXXXXXX</td>
-                  <th>Not Classified</th>
-                  <td>9137765485</td>
+                  <th></th>
+                  <td></td>
+                  <th></th>
+                  <td></td>
                 </tr>
                 <tr>
                   <th />
                   <td />
-                  <th>Ration Card</th>
-                  <td>47AA965450</td>
-                  <th>Email</th>
+                  <th></th>
+                  <td></td>
+                  <th></th>
                   <td>
                     {
                       data?.verifiedData?.data?.cCRResponse
@@ -320,7 +339,7 @@ const MainPdf = ({ data, enquiryId }) => {
               </strong>
             </div>
             {/* Table with 13 Columns */}
-            <table className="table table-bordered">
+            <table className="table table-bordered" style={{ fontSize: "85%" }}>
               {/* Table Header */}
               <thead>
                 <tr>

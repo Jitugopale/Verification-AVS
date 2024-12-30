@@ -72,7 +72,7 @@ const Cont = () => {
        <div className="dashboard-view text-center">
           <div className="d-flex flex-column flex-md-row align-items-center justify-content-between p-3 bg-white shadow rounded">
             <div>
-              <h4>Hi, WALMIK DARADE</h4>
+              <h4>Hi, User</h4>
               <p className="text-muted">Cheers, and happy activities.</p>
               <p className="font-weight-bold">
                 Wallet Balance: <span>Rs. 47445.56</span>
