@@ -43,7 +43,11 @@ const CreditSchema = new Schema({
   },
   pincode: {
     type: String,
+  },
+  enquiryId:{
+    type:String,
   }
+
  
 });
 

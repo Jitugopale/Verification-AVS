@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { jsPDF } from "jspdf";
+import PancardTable from "./PancardTable";
 
 const PancardVerificationPage = ({
   verificationCount,
@@ -12,6 +13,44 @@ const PancardVerificationPage = ({
   const [loading, setLoading] = useState(false); // Added loading state
   const [isVerified, setIsVerified] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [verificationCounts, setVerificationCounts] = useState({
+      pancard: 0,
+      aadhar: 0,
+      udyancard: 0,
+      pandetail: 0,
+      voter: 0,
+      passport: 0,
+      credit: 0,
+      gst: 0,
+    });
+  
+    // Extract only the valid keys for verification counts
+    const keys = Object.keys(verificationCounts);
+
+    useEffect(() => {
+      const fetchVerificationCounts = async () => {
+        try {
+          const response = await axios.get(
+            "http://localhost:5000/api/count/verification-count"
+          );
+          if (response.status === 200) {
+            const filteredData = Object.keys(response.data)
+              .filter((key) => verificationCounts.hasOwnProperty(key)) // Filter out unwanted fields
+              .reduce((obj, key) => {
+                obj[key] = response.data[key];
+                return obj;
+              }, {});
+            setVerificationCounts(filteredData);
+          }
+        } catch (error) {
+          console.error("Error fetching verification counts:", error.message);
+        }
+      };
+  
+      fetchVerificationCounts();
+    }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -209,9 +248,14 @@ const inputStyle = {
         className="p-2 mt-2"
         style={{ maxWidth: '1200px', width: '100%' }}
       >
-        <h2 className="mb-4">PAN Card Verification</h2>
+          <h1 className="card-title" style={{color:'green'}}>PAN Verification</h1>
           <div style={styles.statusBar} className='mt-2'>
-          <span>No. Of Count: 36</span>
+          <div>
+            {/* Display specific count for 'credit' */}
+            <div>
+              <span>No. Of Count : {verificationCounts.pancard}</span>
+            </div>
+          </div>{" "}
           <span>Your available Credit: -62</span>
         </div>
         <form onSubmit={handleSubmit}>
@@ -290,6 +334,7 @@ const inputStyle = {
         )}
       </div>
     </div>
+    <PancardTable/>
     </div>
     
   );

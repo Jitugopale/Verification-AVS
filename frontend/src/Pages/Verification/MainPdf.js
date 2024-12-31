@@ -14,6 +14,7 @@ const MainPdf = ({ data, enquiryId }) => {
           "http://localhost:5000/api/credit/verified"
         );
         setVerifiedUsers(response.data); // Set the fetched data into the state
+        console.log(response.data)
       } catch (error) {
         console.error("Error fetching verified users:", error);
       }
@@ -63,13 +64,19 @@ const MainPdf = ({ data, enquiryId }) => {
               style={{ borderWidth: "0.5px" }}
             >
               <tbody style={{lineHeight:'10px'}}>
+                
                 <tr>
                   <th>Date</th>
-                  <td>16-12-2024</td>
+                  <td style={{ paddingLeft: '4px' }}>
+    {verifiedUsers?.[0]?.formattedDate} {/* Assuming you're fetching user data */}
+  </td>
+
                 </tr>
                 <tr>
                   <th>Time</th>
-                  <td>09:46:12</td>
+                  <td><td style={{ paddingLeft: '4px' }}>
+    {verifiedUsers?.[0]?.formattedTime} {/* Assuming you're fetching user data */}
+  </td></td>
                 </tr>
                 {/* <tr>
                   <th>Control Number</th>

@@ -76,7 +76,7 @@ const Nav = () => {
           <ul className="navbar-nav">
             <li className="nav-item active">
               <a className="navbar-brand" href="https://avsinsotech.com/">
-                AVS Verify
+                Bank Name
               </a>
             </li>
             <li className="nav-item hidden-on-mobile">

@@ -1,13 +1,53 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { jsPDF } from 'jspdf';
+import PassPortTable from './PassPortTable';
 
 const PassportVerification = () => {
   const [idNumber, setIdNumber] = useState('');
   const [dob, setDob] = useState('');
   const [responseData, setResponseData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
   const [error, setError] = useState('');
+
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [verificationCounts, setVerificationCounts] = useState({
+      pancard: 0,
+      aadhar: 0,
+      udyancard: 0,
+      pandetail: 0,
+      voter: 0,
+      passport: 0,
+      credit: 0,
+      gst: 0,
+    });
+  
+    // Extract only the valid keys for verification counts
+    const keys = Object.keys(verificationCounts);
+
+    useEffect(() => {
+      const fetchVerificationCounts = async () => {
+        try {
+          const response = await axios.get(
+            "http://localhost:5000/api/count/verification-count"
+          );
+          if (response.status === 200) {
+            const filteredData = Object.keys(response.data)
+              .filter((key) => verificationCounts.hasOwnProperty(key)) // Filter out unwanted fields
+              .reduce((obj, key) => {
+                obj[key] = response.data[key];
+                return obj;
+              }, {});
+            setVerificationCounts(filteredData);
+          }
+        } catch (error) {
+          console.error("Error fetching verification counts:", error.message);
+        }
+      };
+  
+      fetchVerificationCounts();
+    }, []);
 
   const handleVerify = async () => {
     if (!idNumber || !dob) {
@@ -134,7 +174,7 @@ const PassportVerification = () => {
   const inputStyle = {
     marginBottom: "10px",
     padding: "8px",
-    width: "30%",
+    width: "50%",
     boxSizing: "border-box",
   };
 
@@ -142,12 +182,48 @@ const PassportVerification = () => {
     <div className="container-fluid">
       <div className="d-flex align-items-center">
         <div className="p-3" style={{ maxWidth: '1200px', width: '100%' }}>
-        <h2 className="mb-4" style={{color:'green'}}>PassPort Verification</h2>
-          <div style={styles.statusBar} className='mt-2'>
-          <span>No. Of Count: 36</span>
+        <h1 className="card-title" style={{color:'green'}}>PassPort Verification</h1>
+        <div style={styles.statusBar} className='mt-2'>
+        <div>
+            {/* Display specific count for 'credit' */}
+            <div>
+              <span>No. Of Count : {verificationCounts.passport}</span>
+            </div>
+          </div>{" "}
           <span>Your available Credit: -62</span>
         </div>
-          <div className="mb-3">
+        <div>
+        <div className='row'>
+           <div className='col'>
+           <label>Enter Passport ID : &nbsp;</label>
+        <input
+          type="text"
+          value={idNumber}
+          onChange={(e) => setIdNumber(e.target.value)}
+          placeholder="Enter PassPort Id"
+          style={inputStyle}
+        />
+           </div>
+           <div className='col'>
+           <label>Enter Date of Birth : &nbsp;</label>
+        <input
+          type="date"
+          value={dob}
+          id="dob"
+          onChange={(e) => setDob(e.target.value)}
+          style={inputStyle}
+        />
+           </div>
+        </div>
+        <div className="buttons mt-3">
+        {!isVerified &&<button style={styles.button} onClick={handleVerify} disabled={loading} >{loading ? 'Verifying...' : 'Verify'}</button>}
+            <button style={styles.button}>Excel Report</button>
+            <button style={styles.button} onClick={() => setIdNumber("")}>Clear</button>
+            <button style={styles.button}>Search</button>
+          </div>
+      </div>
+      
+          {/* <div className="mb-3">
             <label htmlFor="id_number" className="form-label">Enter Passport ID</label>
             <input
               type="text"
@@ -166,10 +242,10 @@ const PassportVerification = () => {
               value={dob}
               onChange={(e) => setDob(e.target.value)}
             />
-          </div>
-          <button className="btn btn-primary" onClick={handleVerify} disabled={loading}>
+          </div> */}
+          {/* <button className="btn btn-primary" onClick={handleVerify} disabled={loading}>
             {loading ? 'Verifying...' : 'Verify'}
-          </button>
+          </button> */}
 
           {/* Show error if any */}
           {error && <div className="alert alert-danger mt-3">{error}</div>}
@@ -197,6 +273,7 @@ const PassportVerification = () => {
           </div>
         </div>
       )}
+      <PassPortTable/>
     </div>
   );
 };

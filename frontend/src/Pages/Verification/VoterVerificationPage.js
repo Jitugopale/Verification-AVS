@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { jsPDF } from "jspdf"; // Import jsPDF
 import VoterTable from "./VoterTable";
@@ -9,6 +9,44 @@ const VoterVerificationPage = () => {
   const [loading, setLoading] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
   const [error, setError] = useState("");
+
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [verificationCounts, setVerificationCounts] = useState({
+      pancard: 0,
+      aadhar: 0,
+      udyancard: 0,
+      pandetail: 0,
+      voter: 0,
+      passport: 0,
+      credit: 0,
+      gst: 0,
+    });
+  
+    // Extract only the valid keys for verification counts
+    const keys = Object.keys(verificationCounts);
+
+    useEffect(() => {
+      const fetchVerificationCounts = async () => {
+        try {
+          const response = await axios.get(
+            "http://localhost:5000/api/count/verification-count"
+          );
+          if (response.status === 200) {
+            const filteredData = Object.keys(response.data)
+              .filter((key) => verificationCounts.hasOwnProperty(key)) // Filter out unwanted fields
+              .reduce((obj, key) => {
+                obj[key] = response.data[key];
+                return obj;
+              }, {});
+            setVerificationCounts(filteredData);
+          }
+        } catch (error) {
+          console.error("Error fetching verification counts:", error.message);
+        }
+      };
+  
+      fetchVerificationCounts();
+    }, []);
 
   const handleVerify = async () => {
     if (!idNumber) {
@@ -151,13 +189,13 @@ const VoterVerificationPage = () => {
     // Verification Statement
     const verificationText = `This is to Certify that ${
       responseData.data.name || "N/A"
-    }, Voter Id No. ${idNumber} are verified from link.`;
+    }, Voter Id No. ${idNumber} are verified.`;
     const verificationSplit = doc.splitTextToSize(verificationText, 180);
     doc.text(verificationSplit, 14, 50);
   
     // Define positions and dimensions for the outer border
     const outerX = 10;
-    const outerY = 62;
+    const outerY = 55;
     const outerWidth = 190;
     const outerHeight = 165;
   
@@ -196,9 +234,9 @@ const VoterVerificationPage = () => {
     let yOffset = contentY;
   
     userDetails.forEach(item => {
-      doc.text(`${item.label} :`, contentX + 2, yOffset + 3);
+      doc.text(`${item.label} :`, contentX + 2, yOffset - 6);
       doc.setFont("helvetica", "normal");
-      doc.text(item.value, contentX + 54, yOffset + 3);
+      doc.text(item.value, contentX + 54, yOffset - 6);
       yOffset += 10; // Adjust the Y offset for the next line
     });
   
@@ -291,8 +329,13 @@ const VoterVerificationPage = () => {
   <div className="p-3" style={{ maxWidth: '1200px', width: '100%' }}>
     <h1 className="card-title" style={{color:'green'}}>Voter ID Verification</h1>
     <div className="d-flex justify-content-between mb-3 mt-2" style={styles.statusBar}>
-      <span>No. Of Count: 36</span>
-      <span>Your available Credit: -62</span>
+    <div>
+            {/* Display specific count for 'credit' */}
+            <div>
+              <span>No. Of Count : {verificationCounts.voter}</span>
+            </div>
+          </div>{" "}
+          <span>Your available Credit: -62</span>
     </div>
     <div>
       <label htmlFor="id_number">Enter Voter ID :&nbsp;</label>

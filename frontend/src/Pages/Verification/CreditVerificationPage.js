@@ -145,6 +145,7 @@ const CreditVerificationPage = () => {
       pdf.save("credit_verification.pdf");
     }
   };
+  
 
   // Fetch verification counts from the backend on component mount
   useEffect(() => {
@@ -443,7 +444,7 @@ const CreditVerificationPage = () => {
                 )
               )}
             </div>
-            <button onClick={generatePDF}>Download PDF</button>
+            
           </div>
         </div>
       )}

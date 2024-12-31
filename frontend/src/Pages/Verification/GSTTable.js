@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { jsPDF } from "jspdf";
-import * as XLSX from "xlsx"; // Import xlsx library
 
-
-const CreditTable = ({ generatePDF }) => {
+const GSTTable = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [verificationResult, setVerificationResult] = useState(null);
   const [verifiedUsers, setVerifiedUsers] = useState([]);
   const [users, setUsers] = useState([]); // State to store users list
 
@@ -15,7 +14,7 @@ const CreditTable = ({ generatePDF }) => {
     const fetchVerifiedUsers = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/credit/verified"
+          "http://localhost:5000/api/gst/verified"
         );
         setVerifiedUsers(response.data); // Set the fetched data into the state
       } catch (error) {
@@ -23,71 +22,36 @@ const CreditTable = ({ generatePDF }) => {
       }
     };
     fetchVerifiedUsers();
-  }, []);
+  },[]);
 
 
-// Function to handle Excel download
-const handleExcelDownload = () => {
-  // Mapping the verified users data to the format required for Excel
-  const excelData = verifiedUsers.map((user, index) => ({
-    SrNo: index + 1,
-    PancardNo: user.verifiedData?.data?.cCRResponse
-      ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo
-      ?.identityInfo?.pANId?.[0]?.idNumber || "Not available",
-    Name: user.verifiedData?.data?.cCRResponse
-      ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo
-      ?.personalInfo?.name?.fullName || "Not available",
-    MobileNo: user.verifiedData?.data?.cCRResponse
-      ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo?.phoneInfo
-      ?.find((phone) => phone.typeCode === "M")?.number || "Not available",
-    Address: user.verifiedData?.data?.cCRResponse
-      ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo
-      ?.addressInfo?.[0]?.address || "Not available",
-    DOB: user.verifiedData?.data?.cCRResponse
-      ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo
-      ?.personalInfo?.dateOfBirth || "Not available",
-    VerificationDate: user.formattedDate || "Not available",
-  }));
-
-  // Create a new workbook
-  const wb = XLSX.utils.book_new();
   
-  // Convert excelData to a worksheet
-  const ws = XLSX.utils.json_to_sheet(excelData);
 
-  // Append the worksheet to the workbook
-  XLSX.utils.book_append_sheet(wb, ws, "Verified Users");
-
-  // Trigger the download of the Excel file
-  XLSX.writeFile(wb, "Verified_Users.xlsx");
-};
-
-
-  // const handleDelete = async (aadharNumber) => {
-  //   // Show confirmation dialog
-  //   const isConfirmed = window.confirm("Are you sure you want to delete this user?");
+//   const handleDelete = async (aadharNumber) => {
+//     // Show confirmation dialog
+//     const isConfirmed = window.confirm("Are you sure you want to delete this user?");
   
-  //   // If user clicks "Yes"
-  //   if (isConfirmed) {
-  //     try {
-  //       const response = await axios.delete(`http://localhost:5000/api/adhar/delete/${aadharNumber}`);
+//     // If user clicks "Yes"
+//     if (isConfirmed) {
+//       try {
+//         const response = await axios.delete(`http://localhost:5000/api/voter/delete/${aadharNumber}`);
         
-  //       if (response.data.message === "User deleted successfully.") {
-  //         // If deletion is successful, update state by filtering out the deleted user
-  //         setUsers((prevUsers) => prevUsers.filter((user) => user.aadharNumber !== aadharNumber));
-  //         alert("User deleted successfully.");
-  //       } else {
-  //         alert("Failed to delete user.");
-  //       }
-  //     } catch (error) {
-  //       console.error("Error deleting user:", error);
-  //       alert("Failed to delete user. Please try again.");
-  //     }
-  //   } else {
-  //     // If user clicks "No", just return without deleting
-  //     alert("User deletion canceled.");
-  //   }
-  // };
+//         if (response.data.message === "User deleted successfully.") {
+//           // If deletion is successful, update state by filtering out the deleted user
+//           setUsers((prevUsers) => prevUsers.filter((user) => user.aadharNumber !== aadharNumber));
+//           alert("User deleted successfully.");
+//         } else {
+//           alert("Failed to delete user.");
+//         }
+//       } catch (error) {
+//         console.error("Error deleting user:", error);
+//         alert("Failed to delete user. Please try again.");
+//       }
+//     } else {
+//       // If user clicks "No", just return without deleting
+//       alert("User deletion canceled.");
+//     }
+//   };
   
 
   // Function to generate and download the PDF
@@ -143,7 +107,84 @@ const handleExcelDownload = () => {
 //     doc.save(`${user.verifiedData?.data?.full_name}_aadhaar_verification.pdf`);
 //   };
 
+const handleDownloadPdf = (user) => {
+  if (!user || !user.verifiedData || !user.verifiedData.data) {
+    alert('No data to generate PDF');
+    return;
+  }
 
+  const data = user.verifiedData.data;
+
+  console.log(data); // Debugging: Ensure this shows the expected data
+
+  // Initialize jsPDF
+  const doc = new jsPDF();
+  let yPosition = 10; // Y position for text
+
+  // Title
+  doc.setFontSize(16);
+  doc.setFont('helvetica', 'bold');
+  doc.text('GST Verification Details', 15, yPosition);
+  yPosition += 15;
+
+  // Add GST Details
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'normal');
+  doc.text(`GSTIN: ${data.gstin}`, 10, yPosition);
+  yPosition += 10;
+  doc.text(`Business Name: ${data.business_name}`, 10, yPosition);
+  yPosition += 10;
+  doc.text(`State Jurisdiction: ${data.state_jurisdiction}`, 10, yPosition);
+  yPosition += 10;
+  doc.text(`Taxpayer Type: ${data.taxpayer_type}`, 10, yPosition);
+  yPosition += 10;
+  doc.text(`GST Status: ${data.gstin_status}`, 10, yPosition);
+  yPosition += 10;
+
+  // Filing Status (Latest GSTR1 and GSTR3B)
+  doc.text(`Filing Status (Latest GSTR1): ${data.filing_status?.[0]?.[0]?.status || 'N/A'}`, 10, yPosition);
+  yPosition += 10;
+  doc.text(`Last Filed GSTR3B: ${data.filing_status?.[0]?.[1]?.status || 'N/A'}`, 10, yPosition);
+  yPosition += 10;
+
+  // Registration and Business Information
+  doc.text(`Date of Registration: ${data.date_of_registration}`, 10, yPosition);
+  yPosition += 10;
+  doc.text(`Nature of Core Business: ${data.nature_of_core_business_activity_description}`, 10, yPosition);
+  yPosition += 10;
+  doc.text(`Constitution of Business: ${data.constitution_of_business}`, 10, yPosition);
+  yPosition += 10;
+
+  // Jurisdiction Information
+  doc.text(`Center Jurisdiction: ${data.center_jurisdiction}`, 10, yPosition);
+  yPosition += 10;
+  doc.text(`State Jurisdiction: ${data.state_jurisdiction}`, 10, yPosition);
+  yPosition += 10;
+
+  // Address and Field Visit Information
+  doc.text(`Address: ${data.address}`, 10, yPosition);
+  yPosition += 10;
+  doc.text(`Field Visit Conducted: ${data.field_visit_conducted}`, 10, yPosition);
+  yPosition += 10;
+
+  // Nature of Business Activities and Aadhaar Validation
+  doc.text(`Nature of Business Activities: ${data.nature_bus_activities?.join(', ')}`, 10, yPosition);
+  yPosition += 10;
+  doc.text(`Aadhaar Validation: ${data.aadhaar_validation}`, 10, yPosition);
+  yPosition += 10;
+  doc.text(`Aadhaar Validation Date: ${data.aadhaar_validation_date}`, 10, yPosition);
+  yPosition += 10;
+
+  // Cancellation Information
+  doc.text(`Date of Cancellation: ${data.date_of_cancellation || 'N/A'}`, 10, yPosition);
+  yPosition += 10;
+
+  // Save PDF
+  doc.save('GST_Details.pdf');
+};
+
+  
+  
 
   return (
     <>
@@ -151,29 +192,21 @@ const handleExcelDownload = () => {
                   marginTop:'120px'
                 }}>Verified Users</h3>
       <div className="row mb-5">
-        <div className="col-md-2 d-flex">
-        <span>From Date</span>
-
+        <div className="col-md-2">
           <input
-          style={{marginLeft:'10px'}}
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
             placeholder="Start Date"
           />
         </div>
-        <div className="col-md-2 d-flex offset-md-2">
-        <span>From Date</span>
-
+        <div className="col-md-2 offset-md-8">
           <input
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
             placeholder="End Date"
           />
-        </div>
-        <div className="col-2">
-          <button onClick={handleExcelDownload}>Excel Download</button>
         </div>
       </div>
 
@@ -184,10 +217,10 @@ const handleExcelDownload = () => {
           border: "1px solid #ddd", // Optional: Add a border to the container
         }}
       >
-        <table>
+        <table style={{width:'100%'}}>
           <thead>
             <tr>
-            <th
+              <th
                 style={{
                   padding: "8px",
                   border: "1px solid #ddd",
@@ -205,7 +238,7 @@ const handleExcelDownload = () => {
                   backgroundColor:'hsl(0, 22.60%, 93.90%)'
                 }}
               >
-                Pancard No
+                GST No
               </th>
               <th
                 style={{
@@ -215,7 +248,7 @@ const handleExcelDownload = () => {
                   backgroundColor:'hsl(0, 22.60%, 93.90%)'
                 }}
               >
-                Name
+                PAN No
               </th>
               <th
                 style={{
@@ -225,7 +258,7 @@ const handleExcelDownload = () => {
                   backgroundColor:'hsl(0, 22.60%, 93.90%)'
                 }}
               >
-                Mobile No
+                Business Name
               </th>
               <th
                 style={{
@@ -235,7 +268,7 @@ const handleExcelDownload = () => {
                   backgroundColor:'hsl(0, 22.60%, 93.90%)'
                 }}
               >
-                Address
+                Date of Registration
               </th>
               <th
                 style={{
@@ -245,7 +278,7 @@ const handleExcelDownload = () => {
                   backgroundColor:'hsl(0, 22.60%, 93.90%)'
                 }}
               >
-                DOB
+                GST Status
               </th>
               <th
                 style={{
@@ -267,15 +300,6 @@ const handleExcelDownload = () => {
               >
                 Download
               </th>
-              {/* <th
-                style={{
-                  padding: "8px",
-                  border: "1px solid #ddd",
-                  textAlign: "left",
-                }}
-              >
-                Delete
-              </th> */}
             </tr>
           </thead>
           <tbody>
@@ -310,33 +334,20 @@ const handleExcelDownload = () => {
               })
               .map((user, index) => (
                 <tr key={index} style={{ border: "1px solid #ddd" }}>
-                   <td style={{ padding: "8px", border: "1px solid #ddd" }}>
+                                   <td style={{ padding: "8px", border: "1px solid #ddd" }}>
           {index + 1}
         </td>
+
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData.data.gstin}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData.data.pan_number || "Name not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData.data.business_name || "DOB not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData.data.date_of_registration || "DOB not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData.data.gstin_status || "DOB not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.formattedDate || "DOB not available"}</td>
+
                   <td style={{ padding: "8px", border: "1px solid #ddd" }}>
-                  {user.verifiedData?.data?.cCRResponse
-                        ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo
-                        ?.identityInfo?.pANId?.[0]?.idNumber  || "Not available"}
-                  </td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData?.data?.cCRResponse
-                        ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo
-                        ?.personalInfo?.name?.fullName  || "Not available"}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData?.data?.cCRResponse?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo?.phoneInfo?.find(
-                        (phone) => phone.typeCode === "M"
-                      )?.number  || "Not available"}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData?.data?.cCRResponse
-                        ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo
-                        ?.addressInfo?.[0]?.address  || "Not available"}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData?.data?.cCRResponse
-                        ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo
-                        ?.personalInfo?.dateOfBirth || "Not available"}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>
-                    {user.formattedDate  || "Not available"}
-                </td>
-                
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>
-                    <button 
-                      onClick={generatePDF}
+                    <button
+                      onClick={() => handleDownloadPdf(user)}
                       title="Download PDF"
                       style={{
                         backgroundColor: "#4CAF50",
@@ -372,9 +383,24 @@ const handleExcelDownload = () => {
           </tbody>
         </table>
       </div>
-     
+      {/* <button
+        onClick={() => {
+          localStorage.clear(); // Clears all data from localStorage
+          alert("All local storage data has been cleared!");
+        }}
+        style={{
+          padding: "10px 20px",
+          backgroundColor: "#FF6347", // Color for the button
+          color: "white",
+          border: "none",
+          borderRadius: "5px",
+          cursor: "pointer",
+        }}
+      >
+        Clear All Data
+      </button> */}
     </>
   );
 };
 
-export default CreditTable;
+export default GSTTable;

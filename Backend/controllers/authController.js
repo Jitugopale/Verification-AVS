@@ -619,18 +619,18 @@ async function verifyOtp(clientId, OTP, token,aadharNumber, res) {
 //   }
 // };
 
-const generateEnquiryId = () => {
-  // Generate random 8-digit number (from 10000000 to 99999999)
-  const middlePart = Math.floor(10000000 + Math.random() * 90000000);
+// const generateEnquiryId = () => {
+//   // Generate random 8-digit number (from 10000000 to 99999999)
+//   const middlePart = Math.floor(10000000 + Math.random() * 90000000);
 
-  // Generate random 2-digit number (from 10 to 99)
-  const suffix = Math.floor(10 + Math.random() * 90);
+//   // Generate random 2-digit number (from 10 to 99)
+//   const suffix = Math.floor(10 + Math.random() * 90);
 
-  // Combine prefix, middle part, and suffix
-  const enquiryId = `MF${middlePart}_${suffix}`;
+//   // Combine prefix, middle part, and suffix
+//   const enquiryId = `MF${middlePart}_${suffix}`;
 
-  return enquiryId;
-};
+//   return enquiryId;
+// };
 
 export const creditReportCheckController = async (req, res) => {
   const {name, mobile, document_id, date_of_birth, address, pincode } = req.body;
@@ -652,6 +652,19 @@ export const creditReportCheckController = async (req, res) => {
           verifiedData: existingCredit.verifiedData, // Returning existing verified data
       });
   }
+
+  const generateEnquiryId = () => {
+    // Generate random 8-digit number (from 10000000 to 99999999)
+    const middlePart = Math.floor(10000000 + Math.random() * 90000000);
+  
+    // Generate random 2-digit number (from 10 to 99)
+    const suffix = Math.floor(10 + Math.random() * 90);
+  
+    // Combine prefix, middle part, and suffix
+    const enquiryId = `MF${middlePart}_${suffix}`;
+  
+    return enquiryId;
+  };
 
    // Generate a new enquiry ID
    const enquiryId = generateEnquiryId();
@@ -793,6 +806,7 @@ export const gstVerifyController = async (req, res) => {
             'accept': 'application/json',
             'User-Agent': 'CORP0000363',
         };
+        
 
         const response = await axios.post(
           'https://api.verifya2z.com/api/v1/verification/gst_verify',
@@ -982,12 +996,16 @@ export const panDetailedInfoGetController = async (req, res) => {
           id_number // Sending the idnumber as payload
       };
 
+
+
       const headers = {
           'Content-Type': 'application/json',
           'Token': token,
           'accept': 'application/json',
           'User-Agent': 'CORP0000363',
       };
+      
+      
 
       const response = await axios.post('https://api.verifya2z.com/api/v1/verification/pandetails_verify', apiPayload, { headers });
 

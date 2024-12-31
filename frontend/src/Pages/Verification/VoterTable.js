@@ -140,6 +140,24 @@ const handleDownloadPdf = (user) => {
       const verificationText = `This is to Certify that ${name}, Voter Id No. ${idNumber} are verified from link.`;
       const verificationSplit = doc.splitTextToSize(verificationText, 180);
       doc.text(verificationSplit, 14, 50);
+
+       // Define positions and dimensions for the outer border
+    const outerX = 10;
+    const outerY = 55;
+    const outerWidth = 190;
+    const outerHeight = 165;
+
+     // Draw the outer border
+     doc.setDrawColor(0);
+     doc.setLineWidth(0.7);
+     doc.rect(outerX, outerY, outerWidth, outerHeight);
+   
+     // Define positions and dimensions for content box
+     const contentX = 14;
+     const contentY = 70;
+     const contentWidth = 120;
+     const contentHeight = 90;
+   
   
       // User Details Content
       const userDetails = [
@@ -165,11 +183,32 @@ const handleDownloadPdf = (user) => {
       let yOffset = 70;
   
       userDetails.forEach((item) => {
-        doc.text(`${item.label} :`, 14, yOffset);
+        doc.text(`${item.label} :`, 14, yOffset -6);
         doc.setFont("helvetica", "normal");
-        doc.text(item.value, 60, yOffset);
+        doc.text(item.value, 62, yOffset -6);
         yOffset += 10;
       });
+
+      // Footer with signatures
+    doc.setFont("helvetica", "bold");
+    doc.text("Signature of the Authorised Signatory", 14, 238);
+    doc.text("Signature of the Branch Manager", 110, 238);
+  
+    doc.setFont("helvetica", "normal");
+    doc.text("Name: __________________", 14, 248);
+    doc.text("Name: __________________", 110, 248);
+  
+    doc.text("Designation: ____________", 14, 258);
+    doc.text("Designation: ____________", 110, 258);
+  
+    doc.text("Phone no.: ______________", 14, 268);
+    doc.text("Date: ___________________", 110, 268);
+  
+    // Bank Seal
+    doc.setFont("helvetica", "normal");
+    doc.text("(Bank Seal)", 14, 280);
+    doc.text("Verified By : User", 120, 280);
+  
   
       // Save PDF
       const fileName = `${name}_verification_certificate.pdf`;
@@ -216,11 +255,22 @@ const handleDownloadPdf = (user) => {
         <table>
           <thead>
             <tr>
+            <th
+                style={{
+                  padding: "8px",
+                  border: "1px solid #ddd",
+                  textAlign: "left",
+                  backgroundColor:'hsl(0, 22.60%, 93.90%)'
+                }}
+              >
+                Sr No
+              </th>
               <th
                 style={{
                   padding: "8px",
                   border: "1px solid #ddd",
                   textAlign: "left",
+                  backgroundColor:'hsl(0, 22.60%, 93.90%)'
                 }}
               >
                 Voter ID
@@ -230,6 +280,7 @@ const handleDownloadPdf = (user) => {
                   padding: "8px",
                   border: "1px solid #ddd",
                   textAlign: "left",
+                  backgroundColor:'hsl(0, 22.60%, 93.90%)'
                 }}
               >
                 Name
@@ -239,6 +290,7 @@ const handleDownloadPdf = (user) => {
                   padding: "8px",
                   border: "1px solid #ddd",
                   textAlign: "left",
+                  backgroundColor:'hsl(0, 22.60%, 93.90%)'
                 }}
               >
                 Age
@@ -248,6 +300,7 @@ const handleDownloadPdf = (user) => {
                   padding: "8px",
                   border: "1px solid #ddd",
                   textAlign: "left",
+                  backgroundColor:'hsl(0, 22.60%, 93.90%)'
                 }}
               >
                 Gender
@@ -257,6 +310,7 @@ const handleDownloadPdf = (user) => {
                   padding: "8px",
                   border: "1px solid #ddd",
                   textAlign: "left",
+                  backgroundColor:'hsl(0, 22.60%, 93.90%)'
                 }}
               >
                 District
@@ -266,6 +320,7 @@ const handleDownloadPdf = (user) => {
                   padding: "8px",
                   border: "1px solid #ddd",
                   textAlign: "left",
+                  backgroundColor:'hsl(0, 22.60%, 93.90%)'
                 }}
               >
                 State
@@ -275,6 +330,7 @@ const handleDownloadPdf = (user) => {
                   padding: "8px",
                   border: "1px solid #ddd",
                   textAlign: "left",
+                  backgroundColor:'hsl(0, 22.60%, 93.90%)'
                 }}
               >
                 Polling Station
@@ -284,6 +340,7 @@ const handleDownloadPdf = (user) => {
                   padding: "8px",
                   border: "1px solid #ddd",
                   textAlign: "left",
+                  backgroundColor:'hsl(0, 22.60%, 93.90%)'
                 }}
               >
                 Verification Date
@@ -293,6 +350,7 @@ const handleDownloadPdf = (user) => {
                   padding: "8px",
                   border: "1px solid #ddd",
                   textAlign: "left",
+                  backgroundColor:'hsl(0, 22.60%, 93.90%)'
                 }}
               >
                 Download
@@ -331,6 +389,9 @@ const handleDownloadPdf = (user) => {
               })
               .map((user, index) => (
                 <tr key={index} style={{ border: "1px solid #ddd" }}>
+                   <td style={{ padding: "8px", border: "1px solid #ddd" }}>
+          {index + 1}
+        </td>
                                     <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.id_number}</td>
 
                   <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData.data.name}</td>

@@ -2,38 +2,20 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { jsPDF } from "jspdf";
 
-const DateComponent = () => {
+const UdyamTable = () => {
   const [startDate, setStartDate] = useState("");
+  const [user, setuser] = useState(null);
   const [endDate, setEndDate] = useState("");
+  const [verificationResult, setVerificationResult] = useState(null);
   const [verifiedUsers, setVerifiedUsers] = useState([]);
   const [users, setUsers] = useState([]); // State to store users list
-
-
-  useEffect(() => {
-    if (startDate && endDate) {
-      fetchUsers(startDate, endDate);
-    }
-  }, [startDate, endDate]);
-
-  const fetchUsers = async (startDate, endDate) => {
-    try {
-      const response = await fetch(
-        `http://localhost:5000/api/adhar/verified?startDate=${startDate}&endDate=${endDate}`
-      );
-      if (!response.ok) throw new Error('Failed to fetch users');
-      const data = await response.json();
-      setVerifiedUsers(data);
-    } catch (error) {
-      console.error(error.message);
-    }
-  };
 
   // Fetch the verified users from the backend
   useEffect(() => {
     const fetchVerifiedUsers = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/adhar/verified"
+          "http://localhost:5000/api/udyam/verified"
         );
         setVerifiedUsers(response.data); // Set the fetched data into the state
       } catch (error) {
@@ -46,31 +28,31 @@ const DateComponent = () => {
 
   
 
-  const handleDelete = async (aadharNumber) => {
-    // Show confirmation dialog
-    const isConfirmed = window.confirm("Are you sure you want to delete this user?");
+//   const handleDelete = async (aadharNumber) => {
+//     // Show confirmation dialog
+//     const isConfirmed = window.confirm("Are you sure you want to delete this user?");
   
-    // If user clicks "Yes"
-    if (isConfirmed) {
-      try {
-        const response = await axios.delete(`http://localhost:5000/api/adhar/delete/${aadharNumber}`);
+//     // If user clicks "Yes"
+//     if (isConfirmed) {
+//       try {
+//         const response = await axios.delete(`http://localhost:5000/api/voter/delete/${aadharNumber}`);
         
-        if (response.data.message === "User deleted successfully.") {
-          // If deletion is successful, update state by filtering out the deleted user
-          setUsers((prevUsers) => prevUsers.filter((user) => user.aadharNumber !== aadharNumber));
-          alert("User deleted successfully.");
-        } else {
-          alert("Failed to delete user.");
-        }
-      } catch (error) {
-        console.error("Error deleting user:", error);
-        alert("Failed to delete user. Please try again.");
-      }
-    } else {
-      // If user clicks "No", just return without deleting
-      alert("User deletion canceled.");
-    }
-  };
+//         if (response.data.message === "User deleted successfully.") {
+//           // If deletion is successful, update state by filtering out the deleted user
+//           setUsers((prevUsers) => prevUsers.filter((user) => user.aadharNumber !== aadharNumber));
+//           alert("User deleted successfully.");
+//         } else {
+//           alert("Failed to delete user.");
+//         }
+//       } catch (error) {
+//         console.error("Error deleting user:", error);
+//         alert("Failed to delete user. Please try again.");
+//       }
+//     } else {
+//       // If user clicks "No", just return without deleting
+//       alert("User deletion canceled.");
+//     }
+//   };
   
 
   // Function to generate and download the PDF
@@ -128,144 +110,120 @@ const DateComponent = () => {
 
 const handleDownloadPdf = (user) => {
     const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.getWidth(); // Page width
-    const pageHeight = doc.internal.pageSize.getHeight(); // Page height
-  
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+
     // Add a full-page border
     doc.setDrawColor(0); // Black color
     doc.setLineWidth(0.7); // Border thickness
     doc.rect(5, 5, pageWidth - 10, pageHeight - 10); // Draw rectangle with a 5-unit margin from each edge
-  
+
     // Center-aligned title
     doc.setFont("helvetica", "bold");
     doc.setFontSize(25);
     const title = "Shankar Nagari Sahakari Bank Ltd";
     doc.text(title, (pageWidth - doc.getTextWidth(title)) / 2, 20);
-  
+
     // Center-aligned subtitle
     doc.setFontSize(14);
-    const subtitle = "Aadhar Verification Certificate";
+    const subtitle = "Udyam Aadhaar Verification Certificate";
     doc.text(subtitle, (pageWidth - doc.getTextWidth(subtitle)) / 2, 28);
-  
+
     // Center-aligned section header
     doc.setFontSize(12);
     doc.setFont("helvetica", "normal");
     const header = "TO WHOMSOEVER IT MAY CONCERN";
     doc.text(header, (pageWidth - doc.getTextWidth(header)) / 2, 36);
-  
+
     // Verification Statement
     const verificationText = `This is to Certify that ${
-      user.verifiedData?.data?.full_name || "N/A"
-    }, Aadhaar no. ${
-      user.aadharNumber ? user.aadharNumber.toString() : "N/A"
-    } are verified from https://uidai.gov.in/ using with OTP.`;
+     user.verifiedData.data.enterprise_data.name || "N/A"
+    }, Udyam Id No. ${user.verifiedData.data.enterprise_data.document_id} is verified from the Udyam portal.`;
     const verificationSplit = doc.splitTextToSize(verificationText, 180);
     doc.text(verificationSplit, 14, 50);
-  
+
     // Define positions and dimensions for the outer border
     const outerX = 10;
-    const outerY = 65;
+    const outerY = 62;
     const outerWidth = 190;
-    const outerHeight = 80;
-  
+    const outerHeight = 170;  // Increased to fit all the new data
+
     // Draw the outer border
     doc.setDrawColor(0);
     doc.setLineWidth(0.7);
     doc.rect(outerX, outerY, outerWidth, outerHeight);
-  
+
     // Define positions and dimensions for content box
     const contentX = 14;
     const contentY = 70;
     const contentWidth = 120;
     const contentHeight = 90;
-  
-    // Define positions and dimensions for the profile image box
-    const imageX = 150;
-    const imageY = 70;
-    const imageWidth = 40;
-    const imageHeight = 40;
-  
-    // User Details Content
+
+    // User Details Content inside the rectangle
+    const userDetails = [
+      { label: "Enterprise Name", value:user.verifiedData.data.enterprise_data.name },
+      { label: "Document ID", value:user.verifiedData.data.enterprise_data.document_id },
+      { label: "Major Activity", value:user.verifiedData.data.enterprise_data.major_activity },
+      { label: "Enterprise Type", value:user.verifiedData.data.enterprise_data.enterprise_type },
+      { label: "Organization Type", value:user.verifiedData.data.enterprise_data.organization_type },
+      { label: "Mobile", value:user.verifiedData.data.enterprise_data.mobile },
+      { label: "Email", value:user.verifiedData.data.enterprise_data.email },
+      { label: "Address", value: `${user.verifiedData.data.enterprise_data.address.street}, ${user.verifiedData.data.enterprise_data.address.city}, ${user.verifiedData.data.enterprise_data.address.state}` },
+      { label: "Udyam Registration Date", value:user.verifiedData.data.enterprise_data.date_of_udyam_registration },
+      { label: "MSME DI", value:user.verifiedData.data.enterprise_data.msme_di },
+      { label: "DIC", value:user.verifiedData.data.enterprise_data.dic },
+      { label: "Date of Incorporation", value:user.verifiedData.data.enterprise_data.date_of_incorporation },
+      { label: "Social Category", value:user.verifiedData.data.enterprise_data.social_category },
+      { label: "Enterprise Units", value:user.verifiedData.data.enterprise_units.map(unit => unit.name).join(", ") }
+    ];
+
+    // NIC Code: Handle long text and wrap it appropriately
+    const nicCode = `${user.verifiedData.data.nic_data.nic_2_digit} - ${user.verifiedData.data.nic_data.nic_4_digit} - ${user.verifiedData.data.nic_data.nic_5_digit}`;
+    const nicCodeSplit = doc.splitTextToSize(nicCode, 130);  // Split if necessary to avoid overflow
+
     doc.setFont("helvetica", "bold");
-    doc.text("Name                    :", contentX + 2, contentY + 5);
-    doc.setFont("helvetica", "normal");
-    doc.text(user.verifiedData?.data?.full_name || "N/A", contentX + 40, contentY + 5);
-  
+    let yOffset = contentY;
+
+    userDetails.forEach(item => {
+      doc.text(`${item.label} :`, contentX + 2, yOffset + 3);
+      doc.setFont("helvetica", "normal");
+      doc.text(item.value || "N/A", contentX + 54, yOffset + 3);
+      yOffset += 10; // Adjust the Y offset for the next line
+    });
+
+    // Add NIC Code below the user details
     doc.setFont("helvetica", "bold");
-    doc.text("Aadhaar Number :", contentX + 2, contentY + 15);
+    doc.text("NIC Code:", contentX + 2, yOffset + 3);  // NIC label
     doc.setFont("helvetica", "normal");
-    doc.text(user.aadharNumber ? user.aadharNumber.toString() : "N/A", contentX + 40, contentY + 15);
-  
-    doc.setFont("helvetica", "bold");
-    doc.text("DOB                      :", contentX + 2, contentY + 25);
-    doc.setFont("helvetica", "normal");
-    doc.text(user.verifiedData?.data?.dob || "N/A", contentX + 40, contentY + 25);
-  
-    doc.setFont("helvetica", "bold");
-    doc.text("Gender                  : ", contentX + 2, contentY + 35);
-    doc.setFont("helvetica", "normal");
-    doc.text(user.verifiedData?.data?.gender || "N/A", contentX + 40, contentY + 35);
-  
-    doc.setFont("helvetica", "bold");
-    doc.text("Address                : ", contentX + 2, contentY + 45);
-    doc.setFont("helvetica", "normal");
-    const addressLines = [
-      user?.verifiedData?.data?.address?.house,
-      user?.verifiedData?.data?.address?.street,
-      user?.verifiedData?.data?.address?.landmark,
-      user?.verifiedData?.data?.address?.loc,
-      user?.verifiedData?.data?.address?.po,
-      user?.verifiedData?.data?.address?.subdist,
-      user?.verifiedData?.data?.address?.dist,
-      user?.verifiedData?.data?.address?.state,
-      user?.verifiedData?.data?.address?.country,
-      user?.verifiedData?.data?.zip,
-    ]
-      .filter(Boolean)
-      .join(", ");
-    const addressSplit = doc.splitTextToSize(addressLines || "N/A", contentWidth - 50);
-    doc.text(addressSplit, contentX + 40, contentY + 45);
-  
-    // Draw the rectangle for the profile image
-    doc.setLineWidth(0.5);
-    doc.rect(imageX, imageY, imageWidth, imageHeight);
-  
-    // Add the profile image or fallback text
-    if (user.verifiedData?.data?.profile_image) {
-      const imageData = `data:image/jpeg;base64,${user.verifiedData.data.profile_image}`;
-      doc.addImage(imageData, "JPEG", imageX, imageY, imageWidth, imageHeight);
-    } else {
-      doc.setFont("helvetica", "italic");
-      doc.setFontSize(10);
-      doc.text("Profile image not available", imageX + 5, imageY + 20);
-    }
-  
+    doc.text(nicCodeSplit, contentX + 54, yOffset + 3);  // NIC details
+
+    yOffset += nicCodeSplit.length * 5; // Adjust for the multiline NIC text
+
     // Footer with signatures
     doc.setFont("helvetica", "bold");
-    doc.text("Signature of the Authorised Signatory", 14, 170);
-    doc.text("Signature of the Branch Manager", 110, 170);
-  
+    doc.text("Signature of the Authorised Signatory", 14, 241);
+    doc.text("Signature of the Branch Manager", 110, 241);
+
     doc.setFont("helvetica", "normal");
-    doc.text("Name: __________________", 14, 180);
-    doc.text("Name: __________________", 110, 180);
-  
-    doc.text("Designation: ____________", 14, 190);
-    doc.text("Designation: ____________", 110, 190);
-  
-    doc.text("Phone no.: ______________", 14, 200);
-    doc.text("Date: ___________________", 110, 200);
-  
+    doc.text("Name: __________________", 14, 250);
+    doc.text("Name: __________________", 110, 250);
+
+    doc.text("Designation: ____________", 14, 260);
+    doc.text("Designation: ____________", 110, 260);
+
+    doc.text("Phone no.: ______________", 14, 270);
+    doc.text("Date: ___________________", 110, 270);
+
     // Bank Seal
     doc.setFont("helvetica", "normal");
-    doc.text("(Bank Seal)", 14, 220);
-    doc.text("Verified By : User", 120, 220);
-  
+    doc.text("(Bank Seal)", 14, 283);
+    doc.text("Verified By : User", 120, 283);
+
     // Save PDF
-    const fileName = user.verifiedData?.data?.full_name
-      ? `${user.verifiedData.data.full_name}_verification_certificate.pdf`
-      : "verification_certificate.pdf";
+    const fileName = `${user.verifiedData.data.enterprise_data.name}_verification_certificate.pdf`;
     doc.save(fileName);
-  };
+};
+
   
   
 
@@ -300,10 +258,10 @@ const handleDownloadPdf = (user) => {
           border: "1px solid #ddd", // Optional: Add a border to the container
         }}
       >
-        <table>
+        <table style={{width:'100%'}}>
           <thead>
             <tr>
-            <th
+              <th
                 style={{
                   padding: "8px",
                   border: "1px solid #ddd",
@@ -321,17 +279,7 @@ const handleDownloadPdf = (user) => {
                   backgroundColor:'hsl(0, 22.60%, 93.90%)'
                 }}
               >
-                Photo
-              </th>
-              <th
-                style={{
-                  padding: "8px",
-                  border: "1px solid #ddd",
-                  textAlign: "left",
-                  backgroundColor:'hsl(0, 22.60%, 93.90%)'
-                }}
-              >
-                Aadhaar Number
+                Udyam No
               </th>
               <th
                 style={{
@@ -351,7 +299,7 @@ const handleDownloadPdf = (user) => {
                   backgroundColor:'hsl(0, 22.60%, 93.90%)'
                 }}
               >
-                Gender
+                Email
               </th>
               <th
                 style={{
@@ -361,7 +309,7 @@ const handleDownloadPdf = (user) => {
                   backgroundColor:'hsl(0, 22.60%, 93.90%)'
                 }}
               >
-                DOB
+                Major Activity
               </th>
               <th
                 style={{
@@ -372,6 +320,16 @@ const handleDownloadPdf = (user) => {
                 }}
               >
                 Address
+              </th>
+              <th
+                style={{
+                  padding: "8px",
+                  border: "1px solid #ddd",
+                  textAlign: "left",
+                  backgroundColor:'hsl(0, 22.60%, 93.90%)'
+                }}
+              >
+                Date of Registration
               </th>
               <th
                 style={{
@@ -393,42 +351,52 @@ const handleDownloadPdf = (user) => {
               >
                 Download
               </th>
-              {/* <th
-                style={{
-                  padding: "8px",
-                  border: "1px solid #ddd",
-                  textAlign: "left",
-                }}
-              >
-                Delete
-              </th> */}
             </tr>
           </thead>
           <tbody>
-          {verifiedUsers.map((user, index) => (
+            {verifiedUsers
+              .filter((user) => {
+                const userVerificationDate = new Date(user.verificationDate);
+                let isInDateRange = true;
+
+                // Ensure endDate includes the full last minute of the selected date
+                let endDateObj = new Date(endDate);
+                if (endDate) {
+                  endDateObj.setHours(23, 59, 59, 999); // Set to the last millisecond of the day
+                }
+
+                // If startDate equals endDate and is provided, filter for that specific date
+                if (startDate === endDate && startDate !== "") {
+                  if (
+                    userVerificationDate.toDateString() !==
+                    new Date(startDate).toDateString()
+                  ) {
+                    isInDateRange = false;
+                  }
+                } else {
+                  // Check if the user verification date is within the date range
+                  isInDateRange =
+                    (startDate === "" ||
+                      userVerificationDate >= new Date(startDate)) &&
+                    (endDate === "" || userVerificationDate <= endDateObj); // Use the modified endDateObj here
+                }
+
+                return isInDateRange;
+              })
+              .map((user, index) => (
                 <tr key={index} style={{ border: "1px solid #ddd" }}>
-                   <td style={{ padding: "8px", border: "1px solid #ddd" }}>
+                                   <td style={{ padding: "8px", border: "1px solid #ddd" }}>
           {index + 1}
         </td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>
-                  <img
-                    src={`data:image/jpeg;base64,${user.verifiedData.data.profile_image}`}
-                    alt="Aadhaar Profile"
-                    style={{ width: "150px", height: "150px", borderRadius: "5%" }}
-                    />
-                  </td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.aadharNumber}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData?.data?.full_name || "Name not available"}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData?.data?.gender || "Gender not available"}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData?.data?.dob || "DOB not available"}</td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>
-                    {[user?.verifiedData?.data?.address?.house, user?.verifiedData?.data?.address?.street, user?.verifiedData?.data?.address?.landmark, user?.verifiedData?.data?.address?.loc, user?.verifiedData?.data?.address?.po, user?.verifiedData?.data?.address?.subdist, user?.verifiedData?.data?.address?.dist, user?.verifiedData?.data?.address?.state, user?.verifiedData?.data?.address?.country, user?.verifiedData?.data?.address?.zip]
-                    .filter(Boolean)
-                    .join(", ") || "No Address Available"}
-                </td>
-                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>
-                  {user.formattedDate || "DOB not available"}
-                  </td>
+
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData.data.enterprise_data.document_id}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData.data.enterprise_data.name || "Name not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData.data.enterprise_data.email || "DOB not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData.data.enterprise_data.major_activity || "DOB not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}> {user?.verifiedData?.data?.enterprise_data?.address?.door_no}, {user?.verifiedData?.data?.enterprise_data?.address?.building}, {user?.verifiedData?.data?.enterprise_data?.address?.area}, {user?.verifiedData?.data?.enterprise_data?.address?.city}, {user?.verifiedData?.data?.enterprise_data?.address?.state} - {user?.verifiedData?.data?.enterprise_data?.address?.pincode}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.verifiedData.data.enterprise_data.date_of_udyam_registration || "DOB not available"}</td>
+                  <td style={{ padding: "8px", border: "1px solid #ddd" }}>{user.formattedDate || "DOB not available"}</td>
+
                   <td style={{ padding: "8px", border: "1px solid #ddd" }}>
                     <button
                       onClick={() => handleDownloadPdf(user)}
@@ -487,4 +455,4 @@ const handleDownloadPdf = (user) => {
   );
 };
 
-export default DateComponent;
+export default UdyamTable;

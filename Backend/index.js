@@ -8,6 +8,7 @@ import Adhar from "./models/AadhaarSchema.js";
 import pan from "./models/PanSchema.js"
 import GST from "./models/GSTSchema.js"
 import CREDIT from "./models/CreditSchema.js"
+import Start from "./models/StartEndDate.js"
 import VOTER from "./models/VoterSchema.js"
 import PanDetail from "./models/PanDetailSchema.js";
 import Passport from "./models/PassportSchema.js"
@@ -166,10 +167,10 @@ app.delete('/api/voter/delete/:id_number', async (req, res) => {
 
 //Udyam
 
-app.get("/api/pan/verified", async (req, res) => {
+app.get("/api/udyam/verified", async (req, res) => {
   try {
     // Fetch all documents in the "Adhar" collection
-    const verifiedUsers = await pan.find(); // Ensure 'Adhar' model is correctly referenced
+    const verifiedUsers = await Udyam.find(); // Ensure 'Adhar' model is correctly referenced
 
     if (verifiedUsers.length === 0) {
       return res.status(404).json({ message: "No verified users found." });
@@ -183,13 +184,12 @@ app.get("/api/pan/verified", async (req, res) => {
 });
 
 // In your Express backend:
-app.delete('/api/pan/delete/:pannumber', async (req, res) => {
+app.delete('/api/udyam/delete/:udyam_aadhaar', async (req, res) => {
   try {
-    const { pannumber } = req.params;
+    const { udyam_aadhaar } = req.params;
 
     // Find and delete the user with the specified Aadhaar number
-    const result = await pan.deleteOne({ pannumber });
-    console.log(typeof pannumber, pannumber);
+    const result = await Udyam.deleteOne({ udyam_aadhaar });
 
 
     if (result.deletedCount === 1) {
@@ -206,10 +206,10 @@ app.delete('/api/pan/delete/:pannumber', async (req, res) => {
 
 //Pan Detail
 
-app.get("/api/pan/verified", async (req, res) => {
+app.get("/api/pandetail/verified", async (req, res) => {
   try {
     // Fetch all documents in the "Adhar" collection
-    const verifiedUsers = await pan.find(); // Ensure 'Adhar' model is correctly referenced
+    const verifiedUsers = await PanDetail.find(); // Ensure 'Adhar' model is correctly referenced
 
     if (verifiedUsers.length === 0) {
       return res.status(404).json({ message: "No verified users found." });
@@ -223,13 +223,12 @@ app.get("/api/pan/verified", async (req, res) => {
 });
 
 // In your Express backend:
-app.delete('/api/pan/delete/:pannumber', async (req, res) => {
+app.delete('/api/pandetail/delete/:id_number', async (req, res) => {
   try {
-    const { pannumber } = req.params;
+    const { id_number } = req.params;
 
     // Find and delete the user with the specified Aadhaar number
-    const result = await pan.deleteOne({ pannumber });
-    console.log(typeof pannumber, pannumber);
+    const result = await PanDetail.deleteOne({ id_number });
 
 
     if (result.deletedCount === 1) {
@@ -245,10 +244,10 @@ app.delete('/api/pan/delete/:pannumber', async (req, res) => {
 
 //Passport
 
-app.get("/api/pan/verified", async (req, res) => {
+app.get("/api/passport/verified", async (req, res) => {
   try {
     // Fetch all documents in the "Adhar" collection
-    const verifiedUsers = await pan.find(); // Ensure 'Adhar' model is correctly referenced
+    const verifiedUsers = await Passport.find(); // Ensure 'Adhar' model is correctly referenced
 
     if (verifiedUsers.length === 0) {
       return res.status(404).json({ message: "No verified users found." });
@@ -262,13 +261,12 @@ app.get("/api/pan/verified", async (req, res) => {
 });
 
 // In your Express backend:
-app.delete('/api/pan/delete/:pannumber', async (req, res) => {
+app.delete('/api/passport/delete/:id_number', async (req, res) => {
   try {
-    const { pannumber } = req.params;
+    const { id_number } = req.params;
 
     // Find and delete the user with the specified Aadhaar number
-    const result = await pan.deleteOne({ pannumber });
-    console.log(typeof pannumber, pannumber);
+    const result = await Passport.deleteOne({ id_number });
 
 
     if (result.deletedCount === 1) {
@@ -319,6 +317,72 @@ app.delete('/api/credit/delete/:document_id', async (req, res) => {
     res.status(500).json({ message: "Failed to delete user." });
   }
 });
+
+//GST
+
+app.get("/api/gst/verified", async (req, res) => {
+  try {
+    // Fetch all documents in the "Adhar" collection
+    const verifiedUsers = await GST.find(); // Ensure 'Adhar' model is correctly referenced
+
+    if (verifiedUsers.length === 0) {
+      return res.status(404).json({ message: "No verified users found." });
+    }
+
+    res.status(200).json(verifiedUsers); // Send the list of verified users
+  } catch (error) {
+    console.error(error); // Log the error for debugging purposes
+    res.status(500).json({ message: "Failed to fetch verified users." });
+  }
+});
+
+// In your Express backend:
+app.delete('/api/gst/delete/:id_number', async (req, res) => {
+  try {
+    const { id_number } = req.params;
+
+    // Find and delete the user with the specified Aadhaar number
+    const result = await GST.deleteOne({ id_number });
+
+
+    if (result.deletedCount === 1) {
+      res.json({ message: "User deleted successfully." });
+    } else {
+      res.status(404).json({ message: "User not found." });
+    }
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    res.status(500).json({ message: "Failed to delete user." });
+  }
+});
+
+
+// Route to fetch users based on date range
+app.get("/api/adhar/fetchverified", async (req, res) => {
+  const { startDate, endDate } = req.query;
+
+  try {
+    // Parse the start and end dates
+    const start = startDate ? new Date(startDate) : new Date("1970-01-01");
+    const end = endDate ? new Date(endDate) : new Date();
+    end.setHours(23, 59, 59, 999); // Cover the entire end date
+
+    // Query verified users within the range
+    const users = await Start.find({
+      verificationDate: {
+        $gte: start,
+        $lte: end,
+      },
+    });
+
+    res.status(200).json(users);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
 
 
 const PORT = process.env.PORT || 5000;
