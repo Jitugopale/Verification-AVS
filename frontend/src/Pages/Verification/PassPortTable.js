@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { jsPDF } from "jspdf";
+import * as XLSX from 'xlsx';
 
 const PassPortTable = () => {
   const [startDate, setStartDate] = useState("");
@@ -8,6 +9,68 @@ const PassPortTable = () => {
   const [verificationResult, setVerificationResult] = useState(null);
   const [verifiedUsers, setVerifiedUsers] = useState([]);
   const [users, setUsers] = useState([]); // State to store users list
+
+  
+  const handleDownload = () => {
+    // Filter the users based on the date range
+    const filteredUsers = verifiedUsers.filter((user) => {
+      // Parse `formattedDate` into a JavaScript Date object
+      const [day, month, year] = user.formattedDate.split("/").map(Number);
+      const userVerificationDate = new Date(year, month - 1, day); // Create Date object
+  
+      let isInDateRange = true;
+  
+      // Parse startDate and endDate from the input fields
+      const startDateObj = startDate ? new Date(startDate) : null;
+      let endDateObj = endDate ? new Date(endDate) : null;
+  
+      // Adjust endDate to include the full day
+      if (endDateObj) {
+        endDateObj.setHours(23, 59, 59, 999);
+      }
+  
+      // Include users with a `formattedDate` equal to `startDate`
+      if (startDate && userVerificationDate.toDateString() === startDateObj.toDateString()) {
+        return true;
+      }
+  
+      // Handle case where startDate equals endDate (specific day filtering)
+      if (startDate && endDate && startDate === endDate) {
+        isInDateRange =
+          userVerificationDate.toDateString() === startDateObj.toDateString();
+      } else {
+        // General range filtering
+        isInDateRange =
+          (!startDateObj || userVerificationDate >= startDateObj) &&
+          (!endDateObj || userVerificationDate <= endDateObj);
+      }
+  
+      return isInDateRange;
+    });
+  
+    if (filteredUsers.length === 0) {
+      alert('No data to download');
+      return;
+    }
+  
+    // Map the filtered data to match the desired format for Excel export
+    const exportData = filteredUsers.map((user,index) => ({
+      'SrNo': index + 1,  // You can adjust this if the `SrNo` is not directly available in the data
+      'PassPort ID	': user.verifiedData.data.file_number,
+      'Name': user.verifiedData.data.full_name,
+      'DOB': user.verifiedData.data.dob,
+      'Date of Application': user.verifiedData.data.date_of_application,
+      'Verification Date': user.formattedDate,
+    }));
+  
+    // Prepare data for Excel
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Filtered Users');
+  
+    // Generate Excel file and trigger download
+    XLSX.writeFile(workbook, 'filtered-users.xlsx');
+  };
 
   // Fetch the verified users from the backend
   useEffect(() => {
@@ -189,11 +252,11 @@ const handleDownloadPdf = (user) => {
   return (
     <>
       <h3 style={{
-                  marginTop:'120px'
+                  marginTop:'120px',fontSize:'28px',color:'darkgoldenrod'
                 }}>Verified Users</h3>
-     <div className="row mb-5">
-  <div className="col-12 col-md-1 mt-2" style={{width:'100px'}}>
-    <p>From Date</p>
+     <div className="row mb-3" style={{marginTop:'14px'}}>
+  <div className="col-12 col-md-1" style={{width:'100px', marginTop:'13px'}}>
+    <p style={{color:'black'}}>From Date</p>
   </div>
   <div className="col-12 col-md-2">
     <input
@@ -204,8 +267,8 @@ const handleDownloadPdf = (user) => {
     />
   </div>
 
-  <div className="col-12 col-md-1 mt-2 mt-md-0 offset-md-1" style={{marginTop:'12px'}}>
-    <p>To Date</p>
+  <div className="col-12 col-md-1 mt-md-0 offset-md-1">
+    <p  style={{marginTop:'13px',color:'black'}}>To Date</p>
   </div>
   <div className="col-12 col-md-2">
     <input
@@ -217,7 +280,7 @@ const handleDownloadPdf = (user) => {
   </div>
 
   <div className="col-12 col-md-2 mt-1 mt-md-0">
-    <button>Excel Download</button>
+  <button onClick={handleDownload}>Excel Download</button>
   </div>
 </div>
 
@@ -305,35 +368,42 @@ const handleDownloadPdf = (user) => {
             </tr>
           </thead>
           <tbody>
-            {verifiedUsers
-              .filter((user) => {
-                const userVerificationDate = new Date(user.verificationDate);
-                let isInDateRange = true;
+          {verifiedUsers
+  .filter((user) => {
+    // Parse `formattedDate` into a JavaScript Date object
+    const [day, month, year] = user.formattedDate.split("/").map(Number);
+    const userVerificationDate = new Date(year, month - 1, day); // Create Date object
 
-                // Ensure endDate includes the full last minute of the selected date
-                let endDateObj = new Date(endDate);
-                if (endDate) {
-                  endDateObj.setHours(23, 59, 59, 999); // Set to the last millisecond of the day
-                }
+    let isInDateRange = true;
 
-                // If startDate equals endDate and is provided, filter for that specific date
-                if (startDate === endDate && startDate !== "") {
-                  if (
-                    userVerificationDate.toDateString() !==
-                    new Date(startDate).toDateString()
-                  ) {
-                    isInDateRange = false;
-                  }
-                } else {
-                  // Check if the user verification date is within the date range
-                  isInDateRange =
-                    (startDate === "" ||
-                      userVerificationDate >= new Date(startDate)) &&
-                    (endDate === "" || userVerificationDate <= endDateObj); // Use the modified endDateObj here
-                }
+    // Parse startDate and endDate from the input fields
+    const startDateObj = startDate ? new Date(startDate) : null;
+    let endDateObj = endDate ? new Date(endDate) : null;
 
-                return isInDateRange;
-              })
+    // Adjust endDate to include the full day
+    if (endDateObj) {
+      endDateObj.setHours(23, 59, 59, 999);
+    }
+
+     // Include users with a `formattedDate` equal to `startDate`
+     if (startDate && userVerificationDate.toDateString() === startDateObj.toDateString()) {
+      return true;
+    }
+
+    // Handle case where startDate equals endDate (specific day filtering)
+    if (startDate && endDate && startDate === endDate) {
+      isInDateRange =
+        userVerificationDate.toDateString() === startDateObj.toDateString();
+    } else {
+      // General range filtering
+      isInDateRange =
+        (!startDateObj || userVerificationDate >= startDateObj) &&
+        (!endDateObj || userVerificationDate <= endDateObj);
+    }
+
+    return isInDateRange;
+  })
+
               .map((user, index) => (
                 <tr key={index} style={{ border: "1px solid #ddd" }}>
                                    <td style={{ padding: "8px", border: "1px solid #ddd" }}>

@@ -234,7 +234,7 @@ const UdyamAadhaar = () => {
           value={udyamAadhaar}
           id="udyam_aadhaar"
           onChange={(e) => setUdyamAadhaar(e.target.value)}
-          placeholder="Enter GST Number"
+          placeholder="Enter Udyam Aadhaar"
           style={inputStyle}
         />
         <div className="buttons mt-3">

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { jsPDF } from "jspdf";
 import PancardTable from "./PancardTable";
+import * as XLSX from "xlsx"; // Import xlsx library
 
 const PancardVerificationPage = ({
   verificationCount,
@@ -11,6 +12,7 @@ const PancardVerificationPage = ({
   const [verificationResult, setVerificationResult] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false); // Added loading state
+  const [verifiedUsers, setVerifiedUsers] = useState([]);
   const [isVerified, setIsVerified] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
 
@@ -51,6 +53,46 @@ const PancardVerificationPage = ({
   
       fetchVerificationCounts();
     }, []);
+
+
+     // Fetch the verified users from the backend
+  useEffect(() => {
+    const fetchVerifiedUsers = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:5000/api/pan/verified"
+        );
+        setVerifiedUsers(response.data); // Set the fetched data into the state
+      } catch (error) {
+        console.error("Error fetching verified users:", error);
+      }
+    };
+    fetchVerifiedUsers();
+  },[]);
+
+   const handleExcelDownload = () => {
+      // Mapping the verified users data to the format required for Excel
+      const excelData = verifiedUsers.map((user, index) => ({
+        SrNo: index + 1,
+        'SrNo': index + 1,  // You can adjust this if the `SrNo` is not directly available in the data
+      'Pan No': user.verifiedData.pan_number,
+      'Name': user.verifiedData.full_name,
+      'Verification Date': user.formattedDate,
+      }));
+    
+      // Create a new workbook
+      const wb = XLSX.utils.book_new();
+      
+      // Convert excelData to a worksheet
+      const ws = XLSX.utils.json_to_sheet(excelData);
+    
+      // Append the worksheet to the workbook
+      XLSX.utils.book_append_sheet(wb, ws, "Verified Users");
+    
+      // Trigger the download of the Excel file
+      XLSX.writeFile(wb, "Verified_Users.xlsx");
+    };
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -290,7 +332,7 @@ const inputStyle = {
           </button> */}
           <div className="buttons mt-3">
         {!isVerified &&<button type="submit" style={styles.button} disabled={loading} >{loading ? 'Verifying...' : 'Verify PAN'}</button>}
-            <button style={styles.button}>Excel Report</button>
+            <button type="button"  style={styles.button} onClick={handleExcelDownload}>Excel Report</button>
             <button style={styles.button} onClick={() => setPannumber("")}>Clear</button>
             <button style={styles.button}>Search</button>
           </div>

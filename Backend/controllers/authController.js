@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt"
 import dotenv from 'dotenv';
+import nodemailer from "nodemailer";
 import {validationResult} from 'express-validator';
 import jwt from "jsonwebtoken"
 import Adhar from "../models/AadhaarSchema.js"
@@ -11,6 +12,8 @@ import VOTER from "../models/VoterSchema.js"
 import PanDetail from "../models/PanDetailSchema.js";
 import Passport from "../models/PassportSchema.js"
 import Udyam from "../models/UdyamSchema.js"
+import BankUser from '../models/BankUserSchema.js'
+import Credentials from '../models/CredentialsSchema.js'
 import VerificationCount from "../models/VerificationCount.js"
 import axios from 'axios';
 dotenv.config();
@@ -1317,3 +1320,159 @@ export const getVerifiedUsers = async (req, res) => {
   }
 };
 
+
+//Create New User
+
+
+// Create Bank User Controller
+export const createBankController = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  try {
+    // Check if any user already exists
+    const existingUser = await BankUser.findOne();
+    if (existingUser) {
+      return res.status(400).json({ error: "Only one user registration is allowed." });
+    }
+
+    // Generate a unique user ID and password
+const userId = `BANK-${Date.now()}`; // Generate a unique user ID based on timestamp
+const rawPassword = Math.random().toString(36).slice(-8); // Generate a random 8-character password
+
+    // Hash the generated password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(rawPassword, salt);
+
+    const formatDateTime = (date) => {
+      // Format the date as DD/MM/YYYY
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is zero-indexed
+      const year = date.getFullYear();
+      const formattedDate = `${day}/${month}/${year}`; // Format as DD/MM/YYYY
+    
+      // Format the time as 12-hour format with AM/PM
+      let hours = date.getHours();
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+      
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      hours = hours ? String(hours).padStart(2, '0') : '12'; // Handle 12 AM/PM case
+      
+      const formattedTime = `${hours}:${minutes}:${seconds} ${ampm}`; // Format as HH:MM:SS AM/PM
+    
+      return {
+        date: formattedDate, // Return the formatted date
+        time: formattedTime, // Return the formatted time
+      };
+    };
+    
+    
+    
+    // Example usage
+    const currentDate = new Date();
+    const { date, time } = formatDateTime(currentDate);
+
+    // Create new user
+    const user = await BankUser.create({
+      bankName: req.body.bankName,
+      noOfBranches: req.body.noOfBranches,
+      address: req.body.address,
+      totalTurnover: req.body.totalTurnover,
+      state: req.body.state,
+      email: req.body.email,
+      projectOfficer: req.body.projectOfficer,
+      dateOfAdmission: date, // Automatically set to the current date
+      TimeOfAdmission: time, // Automatically set to the current date
+      registrationNo: req.body.registrationNo,
+      contactPerson: req.body.contactPerson,
+      mobile: req.body.mobile,
+      district: req.body.district,
+      taluka: req.body.taluka,
+      pinCode: req.body.pinCode,
+      userId: userId, // Automatically generated userId
+      password: hashedPassword, // Automatically hashed password
+    });
+
+
+    // Create the Credentials entry with the userId and hashedPassword
+    await Credentials.create({
+      bankName: req.body.bankName,
+      email: req.body.email,
+      userId: userId,
+      password: hashedPassword,
+      RegisterDate:date,
+      RegisterTime:time
+    });
+
+
+    // Send email with user ID and password
+    const transporter = nodemailer.createTransport({
+      service: "gmail", // Replace with your email service
+      auth: {
+        user: process.env.EMAIL_USER || "jiteshgopale26@gmail.com", // Use environment variables for security
+        pass: process.env.EMAIL_PASS || "gaxohvmyinvnieoi", // Use environment variables for security
+      },
+    });
+
+    const mailOptions = {
+      from: req.body.email, // Use user-entered email
+      to: req.body.email,
+      subject: "Your Bank User Registration Details",
+      text: `Dear ${req.body.contactPerson},\n\nYour registration was successful. Below are your login credentials:\n\nUser ID: ${userId}\nPassword: ${rawPassword}\n\nPlease use these credentials to log in to your account.\n\nRegards,\nBank Team`,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.status(201).json({ message: "User registered successfully. Login credentials sent to the provided email." });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+
+//LoginBank
+
+export const loginBankController = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  const { userId, password } = req.body;
+
+  try {
+    // Find the credentials associated with the given userId
+    const credentials = await Credentials.findOne({ userId });
+
+    if (!credentials) {
+      return res.status(400).json({ error: "Invalid user ID or user doesn't exist." });
+    }
+
+    // Compare the entered password with the stored hashed password
+    const isMatch = await bcrypt.compare(password, credentials.password);
+
+    if (!isMatch) {
+      return res.status(400).json({ error: "Invalid password." });
+    }
+
+    // Fetch the associated BankUser details using the userId
+    const bankUser = await BankUser.findOne({ userId });
+
+    if (!bankUser) {
+      return res.status(400).json({ error: "No associated bank user found." });
+    }
+
+    // Response: Login successful
+    res.status(200).json({
+      message: "Login successful.",
+    });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Internal Server Error");
+  }
+};

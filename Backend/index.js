@@ -1,5 +1,6 @@
 import express from "express";
 import connectToMongo from "./db/db.js";
+import ExcelJS from 'exceljs';
 import cors from "cors";
 import dotenv from "dotenv";
 import router from "./routes/authRoutes.js";
@@ -358,27 +359,37 @@ app.delete('/api/gst/delete/:id_number', async (req, res) => {
 
 
 // Route to fetch users based on date range
-app.get("/api/adhar/fetchverified", async (req, res) => {
+app.get('/download-excel', async (req, res) => {
   const { startDate, endDate } = req.query;
 
   try {
-    // Parse the start and end dates
-    const start = startDate ? new Date(startDate) : new Date("1970-01-01");
-    const end = endDate ? new Date(endDate) : new Date();
-    end.setHours(23, 59, 59, 999); // Cover the entire end date
+    const data = await fetchFilteredData(startDate, endDate); // Fetch data based on the date range.
 
-    // Query verified users within the range
-    const users = await Start.find({
-      verificationDate: {
-        $gte: start,
-        $lte: end,
-      },
-    });
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Filtered Data');
 
-    res.status(200).json(users);
+    worksheet.columns = [
+      { header: 'ID', key: 'id', width: 10 },
+      { header: 'Name', key: 'name', width: 30 },
+      { header: 'Email', key: 'email', width: 30 },
+      { header: 'Date', key: 'date', width: 15 },
+    ];
+
+    worksheet.addRows(data);
+
+    res.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    );
+    res.setHeader(
+      'Content-Disposition',
+      'attachment; filename="filtered-data.xlsx"'
+    );
+
+    await workbook.xlsx.write(res);
+    res.end();
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).send('Error generating Excel file');
   }
 });
 

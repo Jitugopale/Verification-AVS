@@ -6,9 +6,11 @@ import Loan from "./Loan";
 import html2canvas from "html2canvas";
 import "./credit.css";
 import CreditTable from "./CreditTable";
+import * as XLSX from "xlsx"; // Import xlsx library
 
 const CreditVerificationPage = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [verifiedUsers, setVerifiedUsers] = useState([]);
   const [verificationCounts, setVerificationCounts] = useState({
     pancard: 0,
     aadhar: 0,
@@ -36,6 +38,57 @@ const CreditVerificationPage = () => {
   const [idNumber, setIdNumber] = useState("");
   const contentRef = useRef();
   const [error, setError] = useState("");
+
+  const handleExcelDownload = () => {
+    // Mapping the verified users data to the format required for Excel
+    const excelData = verifiedUsers.map((user, index) => ({
+      SrNo: index + 1,
+      PancardNo: user.verifiedData?.data?.cCRResponse
+        ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo
+        ?.identityInfo?.pANId?.[0]?.idNumber || "Not available",
+      Name: user.verifiedData?.data?.cCRResponse
+        ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo
+        ?.personalInfo?.name?.fullName || "Not available",
+      MobileNo: user.verifiedData?.data?.cCRResponse
+        ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo?.phoneInfo
+        ?.find((phone) => phone.typeCode === "M")?.number || "Not available",
+      Address: user.verifiedData?.data?.cCRResponse
+        ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo
+        ?.addressInfo?.[0]?.address || "Not available",
+      DOB: user.verifiedData?.data?.cCRResponse
+        ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo
+        ?.personalInfo?.dateOfBirth || "Not available",
+      VerificationDate: user.formattedDate || "Not available",
+    }));
+  
+    // Create a new workbook
+    const wb = XLSX.utils.book_new();
+    
+    // Convert excelData to a worksheet
+    const ws = XLSX.utils.json_to_sheet(excelData);
+  
+    // Append the worksheet to the workbook
+    XLSX.utils.book_append_sheet(wb, ws, "Verified Users");
+  
+    // Trigger the download of the Excel file
+    XLSX.writeFile(wb, "Verified_Users.xlsx");
+  };
+
+   // Fetch the verified users from the backend
+   useEffect(() => {
+    const fetchVerifiedUsers = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:5000/api/credit/verified"
+        );
+        setVerifiedUsers(response.data); // Set the fetched data into the state
+      } catch (error) {
+        console.error("Error fetching verified users:", error);
+      }
+    };
+    fetchVerifiedUsers();
+  }, []);
+  
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -312,7 +365,7 @@ const CreditVerificationPage = () => {
                 {loading ? "Verifying..." : "Verify"}
               </button>
             )}
-            <button style={styles.button}>Excel Report</button>
+            <button style={styles.button} onClick={handleExcelDownload}>Excel Report</button>
             <button style={styles.button} onClick={() => setIdNumber("")}>
               Clear
             </button>

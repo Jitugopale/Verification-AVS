@@ -3,6 +3,7 @@ import axios from "axios";
 import { jsPDF } from "jspdf";
 import "./AadharVerification.css";
 import DateComponent from "./DateComponent";
+import * as XLSX from "xlsx"; // Import xlsx library
 
 // Inline styles
 const containerStyle = {
@@ -82,6 +83,21 @@ const AadhaarVerificationPage = () => {
   
       fetchVerificationCounts();
     }, []);
+
+    useEffect(() => {
+      const fetchVerifiedUsers = async () => {
+        try {
+          const response = await axios.get(
+            "http://localhost:5000/api/adhar/verified"
+          );
+          setVerifiedUsers(response.data); // Set the fetched data into the state
+        } catch (error) {
+          console.error("Error fetching verified users:", error);
+        }
+      };
+      fetchVerifiedUsers();
+    },[]);
+  
     const [aadhaarNumber, setAadhaarNumber] = useState("");
     const [otp, setOtp] = useState("");
     const [isOtpSent, setIsOtpSent] = useState(false);
@@ -163,6 +179,44 @@ const AadhaarVerificationPage = () => {
   //   // Save the PDF
   //   doc.save(`${aadhaarDetails.full_name}_aadhaar_verification.pdf`);
   // };
+
+  const handleExcelDownload = () => {
+    // Mapping the verified users data to the format required for Excel
+    const excelData = verifiedUsers.map((user, index) => ({
+     'SrNo': index + 1, // Serial number
+      'Aadhaar No': user?.verifiedData?.data?.aadhaar_number || "N/A", // Aadhaar number or fallback
+      'Name': user?.verifiedData?.data?.full_name || "N/A", // Full name or fallback
+      'Gender': user?.verifiedData?.data?.gender || "N/A", // Gender or fallback
+      'DOB': user?.verifiedData?.data?.dob || "N/A", // Date of Birth or fallback
+      'Address': [
+        user?.verifiedData?.data?.address?.house,
+        user?.verifiedData?.data?.address?.street,
+        user?.verifiedData?.data?.address?.landmark,
+        user?.verifiedData?.data?.address?.loc,
+        user?.verifiedData?.data?.address?.po,
+        user?.verifiedData?.data?.address?.subdist,
+        user?.verifiedData?.data?.address?.dist,
+        user?.verifiedData?.data?.address?.state,
+        user?.verifiedData?.data?.address?.country,
+        user?.verifiedData?.data?.address?.zip,
+      ]
+        .filter(Boolean) // Filter out undefined or null values
+        .join(", ") || "No Address Available", // Join valid fields or provide a fallback
+      'Verification Date': user?.formattedDate || "N/A", // Verification date or fallback
+    }));
+  
+    // Create a new workbook
+    const wb = XLSX.utils.book_new();
+    
+    // Convert excelData to a worksheet
+    const ws = XLSX.utils.json_to_sheet(excelData);
+  
+    // Append the worksheet to the workbook
+    XLSX.utils.book_append_sheet(wb, ws, "Verified Users");
+  
+    // Trigger the download of the Excel file
+    XLSX.writeFile(wb, "Verified_Users.xlsx");
+  };
 
 
 const handleAdharPdf = (aadhaarDetails) => {
@@ -428,10 +482,10 @@ const handleAdharPdf = (aadhaarDetails) => {
           </div>
         )}
 
-<       div style={buttonGroupStyle}>
+<       div style={buttonGroupStyle} className="mt-3">
             {!isOtpSent && !isVerified && <button style={styles.button}  onClick={handleSendOtp}>Verify Aadhar</button>}      
             {isOtpSent && !isVerified && <button onClick={handleVerifyOtp}  style={styles.button} >Verify OTP</button>}
-            <button style={styles.button}>Excel Report</button>
+            <button type='button' style={styles.button} onClick={handleExcelDownload}>Excel Report</button>
             <button style={styles.button} onClick={() => setAadhaarNumber("")}>Clear</button>
             <button style={styles.button}>Search</button>
           

@@ -17,6 +17,8 @@ import { getVerificationCounts } from '../controllers/authController.js';
 import { updateVerificationCount } from '../controllers/authController.js';
 import { creditReportCheck } from '../controllers/authController.js';
 import { getVerifiedUsers } from '../controllers/authController.js';
+import { createBankController } from '../controllers/authController.js';
+import { loginBankController } from '../controllers/authController.js';
 
 const router = express.Router()
 router.post('/createUser',[
@@ -66,5 +68,9 @@ router.get('/verification-count', getVerificationCounts);
 router.post('/update-verification-count', updateVerificationCount);
 
 router.get('/verifiedUsers', getVerifiedUsers);
+
+router.post('/bankuser', createBankController);
+
+router.post('/banklogin', loginBankController);
 
 export default router;
