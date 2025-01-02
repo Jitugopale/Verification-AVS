@@ -42,23 +42,23 @@ const CreditVerificationPage = () => {
   const handleExcelDownload = () => {
     // Mapping the verified users data to the format required for Excel
     const excelData = verifiedUsers.map((user, index) => ({
-      SrNo: index + 1,
-      PancardNo: user.verifiedData?.data?.cCRResponse
+      'SrNo': index + 1,
+      'PancardNo': user.verifiedData?.data?.cCRResponse
         ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo
         ?.identityInfo?.pANId?.[0]?.idNumber || "Not available",
-      Name: user.verifiedData?.data?.cCRResponse
+      'Name': user.verifiedData?.data?.cCRResponse
         ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo
         ?.personalInfo?.name?.fullName || "Not available",
-      MobileNo: user.verifiedData?.data?.cCRResponse
+      'MobileNo': user.verifiedData?.data?.cCRResponse
         ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo?.phoneInfo
         ?.find((phone) => phone.typeCode === "M")?.number || "Not available",
-      Address: user.verifiedData?.data?.cCRResponse
+      'Address': user.verifiedData?.data?.cCRResponse
         ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo
         ?.addressInfo?.[0]?.address || "Not available",
-      DOB: user.verifiedData?.data?.cCRResponse
+      'DOB': user.verifiedData?.data?.cCRResponse
         ?.cIRReportDataLst?.[0]?.cIRReportData?.iDAndContactInfo
         ?.personalInfo?.dateOfBirth || "Not available",
-      VerificationDate: user.formattedDate || "Not available",
+      'VerificationDate': user.formattedDate || "Not available",
     }));
   
     // Create a new workbook
@@ -365,7 +365,7 @@ const CreditVerificationPage = () => {
                 {loading ? "Verifying..." : "Verify"}
               </button>
             )}
-            <button style={styles.button} onClick={handleExcelDownload}>Excel Report</button>
+            <button type="button" style={styles.button} onClick={handleExcelDownload}>Excel Report</button>
             <button style={styles.button} onClick={() => setIdNumber("")}>
               Clear
             </button>
