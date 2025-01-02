@@ -1,219 +1,118 @@
-// import React from "react";
-// import {Link} from "react-router-dom"
+import React, { useState } from "react";
+import axios from "axios"; // Axios to make HTTP requests
+import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import MainNavbar from "./MainNavbar";
+import img from "./images/back2.jpg"
 
-// const LoginPage = () => {
-//   return (
-//     <>
-//       <div className="container-fluid">
-//         <div className="d-flex justify-content-center align-items-center vh-100">
-//           <div className="card shadow p-3 w-50">
-//             <h1 className="card-title">Login</h1>
-//             <form className="mt-3">
-//               <div className="form-group mt-2">
-//                 <label htmlFor="exampleInputEmail1 d-flex justify-content-center ">Email address</label>
-//                 <input
-//                   type="email"
-//                   className="form-control mt-2"
-//                   id="exampleInputEmail1"
-//                   aria-describedby="emailHelp"
-//                   placeholder="Enter email"
-//                 />
-//               </div>
-//               <div className="form-group mt-2">
-//                 <label htmlFor="exampleInputPassword1">Password</label>
-//                 <input
-//                   type="password"
-//                   className="form-control mt-2"
-//                   id="exampleInputPassword1"
-//                   placeholder="Password"
-//                 />
-//               </div>
-//               <button type="submit" className="btn btn-primary mt-3">
-//                 Submit
-//               </button>
-//             </form>
-//             <div className="mt-2">
-//                 <p className="card-text">Not registered? <Link to="/register">Go to Register</Link></p>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     </>
-//   );
-// };
-
-// export default LoginPage;
-
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
-
-const styles = {
-  container: {
-    maxWidth: '500px',
-    margin: '0 auto',
-    padding: '20px',
-    backgroundColor: '#fff',
-    borderRadius: '10px',
-    boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
-    textAlign: 'center',
-  },
-  headingLogin: {
-    fontSize: '2rem',
-    color: '#4A90E2',
-    marginBottom: '20px',
-    fontWeight: 'bold',
-  },
-  formControl: {
-    border: '1px solid #ddd',
-    borderRadius: '8px',
-    padding: '12px',
-    width: '100%',
-    fontSize: '1rem',
-    marginBottom: '15px',
-    transition: 'border-color 0.3s ease-in-out',
-  },
-  formControlFocus: {
-    borderColor: '#4A90E2',
-    outline: 'none',
-    boxShadow: '0 0 5px rgba(74, 144, 226, 0.6)',
-  },
-  btn: {
-    backgroundColor: '#4A90E2',
-    color: 'white',
-    fontSize: '1.1rem',
-    padding: '12px',
-    border: 'none',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    transition: 'background-color 0.3s ease',
-    width: '100%',
-    marginBottom: '15px',
-  },
-  btnHover: {
-    backgroundColor: '#357ABD',
-  },
-  btnDisabled: {
-    backgroundColor: '#A3C4E2',
-    cursor: 'not-allowed',
-  },
-  alert: {
-    backgroundColor: '#F8D7DA',
-    color: '#721C24',
-    padding: '10px',
-    borderRadius: '8px',
-    marginBottom: '20px',
-  },
-  alertSuccess: {
-    backgroundColor: '#D4EDDA',
-    color: '#155724',
-    padding: '10px',
-    borderRadius: '8px',
-    marginBottom: '20px',
-  },
-  mt3: {
-    fontSize: '1rem',
-  },
-  link: {
-    color: '#4A90E2',
-    textDecoration: 'none',
-  }
-};
-
-const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [clickedFields, setClickedFields] = useState({
-    email: false,
-    password: false,
-  });
+const LoginPage = () => {
+  const [userId, setUserId] = useState(""); // State for userId
+  const [password, setPassword] = useState(""); // State for password
+  const [error, setError] = useState(""); // State for error messages
+  const [message, setMessage] = useState(""); // State for success messages
   const navigate = useNavigate();
 
+  // Handle form submission
   const handleLogin = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    // http://localhost:5000/api/auth/login
-    try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', { email, password });
+    e.preventDefault(); // Prevent page reload on form submission
+    setError(""); // Reset error messages
+    setMessage(""); // Reset success messages
 
-      if (response.data.authToken) {
-        localStorage.setItem('token', response.data.authToken);
-        localStorage.setItem('userId', response.data.userId);
-        setEmail(''); 
-        setPassword(''); 
-        console.log("Login successful, redirecting to DemoPage...");
-        navigate('/dashboard');
+    try {
+      // Send the login request to the backend
+      const response = await axios.post("http://localhost:5000/api/auth/banklogin", {
+        userId,
+        password,
+      });
+
+      // On success, show a success message
+      setMessage(response.data.message);
+      console.log("Login successful, redirecting to Dashboard...");
+      navigate('/dashboard');
+    } catch (err) {
+      // Handle error response
+      if (err.response && err.response.data) {
+        setError(err.response.data.error || "Something went wrong!");
       } else {
-        setError("Invalid login credentials.");
+        setError("Server not reachable.");
       }
-    } catch (error) {
-      console.error('Login failed', error);
-      setError(
-        error.response?.data?.message || 
-        'Invalid email or password. Please try again.'
-      );
-    } finally {
-      setLoading(false);
     }
   };
 
-  const handleInputClick = (field) => {
-    setClickedFields((prev) => ({
-      ...prev,
-      [field]: true, 
-    }));
-  };
-
   return (
-    <div className="container contain-2 mt-5" style={styles.container}>
-      <h2 className='heading-login' style={styles.headingLogin}>Login</h2>
-      <form onSubmit={handleLogin}>
-        {error && <div className="alert alert-danger" aria-live="polite" style={styles.alert}>{error}</div>}
-        <div className="mb-3">
-          <label htmlFor="email">{clickedFields.email ? "Email" : ""}</label>
-          <input
-            type="email"
-            className="form-control control"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            style={styles.formControl}
-            aria-label="Email"
-            onClick={() => handleInputClick('email')} 
-            placeholder={clickedFields.email ? "" : "Email"} 
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="password">{clickedFields.password ? "Password" : ""}</label>
-          <input
-            type="password"
-            className="form-control control"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            style={styles.formControl}
-            aria-label="Password"
-            onClick={() => handleInputClick('password')} 
-            placeholder={clickedFields.password ? "" : "Password"} 
-          />
-        </div>
-        <button type="submit" className="btn bn bn-primary btn-primary" style={loading ? { ...styles.btn, ...styles.btnDisabled } : styles.btn} disabled={loading}>
-          {loading ? 'Logging in...' : 'Login'}
-        </button>
-      </form>
+    <>
+       <div style={{ backgroundImage: `url(${img})`, height:'100vh'}}>
+       <MainNavbar/>
+        <div className="container-fluid d-flex align-items-center justify-content-center" style={{marginTop:'70px'}}>
+   
+        {/* <div className="col-12 text-center mb-4">
+          <div className="bg-primary text-white py-2">
+            <img src="/path-to-logo.png" alt="Company Logo" style={{ maxHeight: "50px" }} className="me-2" />
+            <span className="fs-4 fw-bold">In-so-Tech Pvt. Ltd.</span>
+          </div>
+        </div> */}
+       
 
-      <div className="mt-3">
-        <p style={styles.mt3}>
-          Not registered? <Link to="/register" style={styles.link}>Go to Register</Link>
-        </p>
-      </div>
+        {/* Login Box */}
+      
+          <div className="card shadow" style={{ width: "400px" }}>
+            <div className="card-body">
+              <h3 className="text-center mb-4">Login</h3>
+              <form onSubmit={handleLogin}>
+                {/* Username Field */}
+                <div className="mb-3">
+                  <label htmlFor="username" className="form-label">USERNAME *</label>
+                  <input
+                    type="text"
+                    id="username"
+                    className="form-control"
+                    placeholder="Username"
+                    value={userId}
+                    onChange={(e) => setUserId(e.target.value)} // Update state on change
+                    required
+                  />
+                </div>
+
+                {/* Password Field */}
+                <div className="mb-3">
+                  <label htmlFor="password" className="form-label">PASSWORD *</label>
+                  <input
+                    type="password"
+                    id="password"
+                    className="form-control"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)} // Update state on change
+                    required
+                  />
+                </div>
+
+                {/* Forgot Password Link */}
+                <div className="mb-3 text-center">
+                  <a href="/forgot-password" className="text-decoration-none">Forgot Password?</a>
+                </div>
+
+                {/* Login Button */}
+                <button type="submit" className="btn btn-success w-100">LOGIN</button>
+
+                {/* Register Link */}
+                <div className="mt-3 text-center">
+                  <span>Don't have an account? </span>
+                  <Link to="/register" className="text-decoration-none">Register Here</Link>
+                </div>
+              </form>
+
+              {/* Display error or success message */}
+              {error && <div className="alert alert-danger mt-3">{error}</div>}
+              {message && <div className="alert alert-success mt-3">{message}</div>}
+            </div>
+          </div>
+      
+    
     </div>
+       </div>
+    </>
   );
 };
 
-export default Login;
+export default LoginPage;

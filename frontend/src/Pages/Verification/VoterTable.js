@@ -53,7 +53,7 @@ const VoterTable = () => {
   
     // Map the filtered data to match the desired format for Excel export
     const exportData = filteredUsers.map((user, index) => ({
-      SrNo: index + 1, // Serial number
+      'SrNo': index + 1, // Serial number
       'Voter ID': user?.verifiedData?.data?.input_voter_id || "N/A", // Voter ID
       'Name': user?.verifiedData?.data?.name || "N/A", // Name
       'Age': user?.verifiedData?.data?.age || "N/A", // Age

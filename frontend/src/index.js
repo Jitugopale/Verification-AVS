@@ -3,11 +3,15 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { RecoveryProvider } from "../src/Pages/Authentication/RecoveryContext";
+
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
+     <RecoveryProvider>
     <App />
+    </RecoveryProvider>
   </React.StrictMode>
 );
 

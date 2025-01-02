@@ -19,6 +19,9 @@ import { creditReportCheck } from '../controllers/authController.js';
 import { getVerifiedUsers } from '../controllers/authController.js';
 import { createBankController } from '../controllers/authController.js';
 import { loginBankController } from '../controllers/authController.js';
+import { getBank } from '../controllers/authController.js';
+import { VerifyBankOTP } from '../controllers/authController.js';
+import { sendBankEmail } from '../controllers/authController.js';
 
 const router = express.Router()
 router.post('/createUser',[
@@ -72,5 +75,11 @@ router.get('/verifiedUsers', getVerifiedUsers);
 router.post('/bankuser', createBankController);
 
 router.post('/banklogin', loginBankController);
+
+router.get('/getbank', getBank);
+
+router.post('/send_recovery_email', sendBankEmail);
+
+router.post('/verify_otp', VerifyBankOTP);
 
 export default router;

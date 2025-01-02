@@ -1427,7 +1427,12 @@ const rawPassword = Math.random().toString(36).slice(-8); // Generate a random 8
 
     await transporter.sendMail(mailOptions);
 
-    res.status(201).json({ message: "User registered successfully. Login credentials sent to the provided email." });
+    const data = { id: user.id };
+    const authToken = jwt.sign(data, JWT_SECRET);
+    res.status(201).json({
+      message: "User registered successfully. Login credentials sent to the provided email.",
+      authToken,
+    });
   } catch (error) {
     console.error(error.message);
     res.status(500).send("Internal Server Error");
@@ -1453,6 +1458,7 @@ export const loginBankController = async (req, res) => {
       return res.status(400).json({ error: "Invalid user ID or user doesn't exist." });
     }
 
+
     // Compare the entered password with the stored hashed password
     const isMatch = await bcrypt.compare(password, credentials.password);
 
@@ -1461,18 +1467,196 @@ export const loginBankController = async (req, res) => {
     }
 
     // Fetch the associated BankUser details using the userId
-    const bankUser = await BankUser.findOne({ userId });
+    const user = await BankUser.findOne({ userId });
 
-    if (!bankUser) {
+    if (!user) {
       return res.status(400).json({ error: "No associated bank user found." });
     }
 
-    // Response: Login successful
-    res.status(200).json({
+
+    const data = { id: credentials.id };
+    const authToken = jwt.sign(data, JWT_SECRET);
+    res.status(201).json({
       message: "Login successful.",
+      authToken,
     });
   } catch (error) {
     console.error(error.message);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+
+
+
+
+
+
+// Email-sending function using Nodemailer
+function sendEmail({ recipient_email, OTP }) {
+  return new Promise((resolve, reject) => {
+    var transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: MY_EMAIL, // Gmail email address
+        pass: MY_PASSWORD, // App password (if 2FA is enabled)
+      },
+    });
+
+    const mail_configs = {
+      from: MY_EMAIL,
+      to: recipient_email,
+      subject: "KODING 101 PASSWORD RECOVERY",
+      html: `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <title>Password Recovery</title>
+        </head>
+        <body>
+          <div style="font-family: Helvetica,Arial,sans-serif;min-width:1000px;overflow:auto;line-height:2">
+            <div style="margin:50px auto;width:70%;padding:20px 0">
+              <div style="border-bottom:1px solid #eee">
+                <a href="" style="font-size:1.4em;color: #00466a;text-decoration:none;font-weight:600">Koding 101</a>
+              </div>
+              <p style="font-size:1.1em">Hi,</p>
+              <p>Thank you for choosing Koding 101. Use the following OTP to complete your Password Recovery Procedure. OTP is valid for 5 minutes</p>
+              <h2 style="background: #00466a;margin: 0 auto;width: max-content;padding: 0 10px;color: #fff;border-radius: 4px;">${OTP}</h2>
+              <p style="font-size:0.9em;">Regards,<br />Koding 101</p>
+            </div>
+          </div>
+        </body>
+        </html>`
+    };
+
+    transporter.sendMail(mail_configs, (error, info) => {
+      if (error) {
+        console.error(error);
+        return reject({ message: `An error occurred: ${error.message}` });
+      }
+      return resolve({ message: "Email sent successfully" });
+    });
+  });
+}
+
+
+// Route 3: Send OTP for password recovery
+// Example route for sending OTP to the user's email
+// Route for sending recovery email
+export const sendBankEmail =  async (req, res) => {
+  const { email } = req.body;
+  
+  // Generate a random OTP (for example, a 6-digit number)
+  const otp = Math.floor(100000 + Math.random() * 900000);
+  
+  // OTP expires in 10 minutes
+  const otpExpiration = Date.now() + 10 * 60 * 1000;
+
+  try {
+    // Find the user by email
+    const user = await User.findOne({ email });
+    
+    if (!user) {
+      return res.status(400).json({ message: 'User not found.' });
+    }
+
+    // Log the user document before updating
+    console.log("User before OTP update:", user);
+
+    // Update the OTP and OTP expiration in the user document
+    user.otp = otp;
+    user.otpExpiration = otpExpiration;
+
+    // Log the OTP and expiration time before saving
+    console.log("Updating OTP:", otp);
+    console.log("OTP Expiration:", otpExpiration);
+
+    // Save the updated user document
+    await user.save(); // Save the updated user document
+
+    // Send OTP via email (using nodemailer, for example)
+    sendEmail({ recipient_email: email, OTP: otp })
+      .then(() => {
+        res.status(200).json({ message: 'OTP sent to your email.' });
+      })
+      .catch(error => {
+        console.error(error);
+        res.status(500).json({ message: 'Failed to send OTP.' });
+      });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Internal Server Error");
+  }
+}
+
+// Route for verifying OTP and changing password
+export const VerifyBankOTP =  async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+
+  try {
+    // Find the user by email
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({ message: 'User not found.' });
+    }
+
+    // Log OTP and expiration time for debugging
+    console.log('Stored OTP:', user.otp);
+    console.log('OTP Expiration:', user.otpExpiration);
+    console.log('Current Time:', Date.now());
+
+    // Check if OTP matches and is still valid
+    if (user.otp === otp && user.otpExpiration > Date.now()) {
+      // Update the password
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      await User.updateOne(
+        { email },
+        { password: hashedPassword, otp: null, otpExpiration: null }
+      );
+
+      res.status(200).json({ message: 'Password successfully updated.' });
+    } else {
+      res.status(400).json({ message: 'Invalid OTP or OTP expired.' });
+    }
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+}
+
+
+// export const getBank = async (req, res) => {
+//   try {
+//     // Ensure `req.user` is populated by the `fetchuser` middleware
+//     const email = req.user.email; // Assuming `email` is in the token payload
+
+//     // Find the user by email
+//     const user = await Credentials.findOne({ userId });
+//     if (!user) {
+//       return res.status(404).json({ error: "User not found" });
+//     }
+
+//     // Send the user data as a response
+//     res.json(user);
+//   } catch (error) {
+//     console.error(error.message);
+//     res.status(500).send("Internal Server Error");
+//   }
+// };
+
+export const getBank = async (req, res) => {
+  try {
+    console.log("User ID from req.user:", req.user); // Debug log
+    const userId = req.user.id; // Extracted from JWT payload
+    const user = await Credentials.findById(userId); // Find user by _id
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    res.json(user); // Send the user object in response
+  } catch (error) {
+    console.error("Error in getBank:", error.message);
     res.status(500).send("Internal Server Error");
   }
 };

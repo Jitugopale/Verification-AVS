@@ -6,6 +6,7 @@ import LoginPage from "../Pages/Authentication/LoginPage";
 import RegisterPage from "../Pages/Authentication/RegisterPage";
 import 'boxicons/css/boxicons.min.css';
 import PancardVerificationPage from "../Pages/Verification/PancardVerificationPage";
+import OTPVerification from "../Pages/Authentication/OTPVerification";
 import AadhaarVerificationPage from "../Pages/Verification/AadhaarVerificationPage";
 import VoterVerificationPage from "../Pages/Verification/VoterVerificationPage";
 import GSTVerificationPage from "../Pages/Verification/GSTVerificationPage";
@@ -27,6 +28,7 @@ const RouteApp = () => {
           <Route path="/" element={<LandingPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/otp-verification" element={<OTPVerification />} />
           <Route path="/logout" element={<Logout/>} />
           <Route path="/user" element={<UserProfile/>} />
           <Route path="/dashboard" element={<Dashboard />}>

@@ -2,12 +2,14 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { jsPDF } from "jspdf"; // Import jsPDF
 import VoterTable from "./VoterTable";
+import * as XLSX from "xlsx"; // Import xlsx library
 
 const VoterVerificationPage = () => {
   const [idNumber, setIdNumber] = useState("");
   const [responseData, setResponseData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
+const [verifiedUsers, setVerifiedUsers] = useState([]);
   const [error, setError] = useState("");
 
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -24,6 +26,48 @@ const VoterVerificationPage = () => {
   
     // Extract only the valid keys for verification counts
     const keys = Object.keys(verificationCounts);
+
+    useEffect(() => {
+      const fetchVerifiedUsers = async () => {
+        try {
+          const response = await axios.get(
+            "http://localhost:5000/api/voter/verified"
+          );
+          setVerifiedUsers(response.data); // Set the fetched data into the state
+        } catch (error) {
+          console.error("Error fetching verified users:", error);
+        }
+      };
+      fetchVerifiedUsers();
+    },[]);
+
+    const handleExcelDownload = () => {
+      // Mapping the verified users data to the format required for Excel
+      const excelData = verifiedUsers.map((user, index) => ({
+       'SrNo': index + 1,  // You can adjust this if the `SrNo` is not directly available in the data
+       'Voter ID': user?.verifiedData?.data?.input_voter_id || "N/A", // Voter ID
+       'Name': user?.verifiedData?.data?.name || "N/A", // Name
+       'Age': user?.verifiedData?.data?.age || "N/A", // Age
+       'Gender': user?.verifiedData?.data?.gender || "N/A", // Gender
+       'District': user?.verifiedData?.data?.district || "N/A", // District
+       'State': user?.verifiedData?.data?.state || "N/A", // State
+       'Polling Station': user?.verifiedData?.data?.polling_station || "N/A", // Polling station
+       'Verification Date': user?.formattedDate || "N/A", // Verification date
+      }));
+    
+      // Create a new workbook
+      const wb = XLSX.utils.book_new();
+      
+      // Convert excelData to a worksheet
+      const ws = XLSX.utils.json_to_sheet(excelData);
+    
+      // Append the worksheet to the workbook
+      XLSX.utils.book_append_sheet(wb, ws, "Verified Users");
+    
+      // Trigger the download of the Excel file
+      XLSX.writeFile(wb, "Verified_Users.xlsx");
+    };
+  
 
     useEffect(() => {
       const fetchVerificationCounts = async () => {
@@ -351,6 +395,7 @@ const VoterVerificationPage = () => {
       <div className="buttons mt-3">
         {!isVerified && (
           <button
+          type="submit"
             style={styles.button}
             onClick={handleVerify}
             disabled={loading}
@@ -359,7 +404,7 @@ const VoterVerificationPage = () => {
             {loading ? 'Verifying...' : 'Verify'}
           </button>
         )}
-        <button style={styles.button}>Excel Report</button>
+        <button type="button" style={styles.button} onClick={handleExcelDownload} >Excel Report</button>
         <button
           style={styles.button}
           onClick={() => setIdNumber("")}
@@ -372,13 +417,11 @@ const VoterVerificationPage = () => {
     </div>
     {error && <div className="alert alert-danger mt-3">{error}</div>}
   </div>
-   
-
 </div>
 
 
       {/* Show response data below the card */}
-      {responseData && (
+      {!isVerified &&responseData && (
      <div className="container mt-5 d-flex justify-content-center">
      <div className="card shadow-lg p-4" style={{ borderRadius: '10px', backgroundColor: '#f8f9fa', maxWidth: '800px' }}>
        <table className="table table-bordered" style={{ fontSize: '16px' }}>

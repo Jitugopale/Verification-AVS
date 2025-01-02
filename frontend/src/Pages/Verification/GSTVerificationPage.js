@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { jsPDF } from 'jspdf';
 import GSTTable from './GSTTable';
+import * as XLSX from "xlsx"; // Import xlsx library
 
 const GSTVerificationPage = () => {
   const [idNumber, setIdNumber] = useState('');
   const [responseData, setResponseData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [verifiedUsers, setVerifiedUsers] = useState([]);
   const [isVerified, setIsVerified] = useState(false);
   const [error, setError] = useState('');
 
@@ -24,6 +26,20 @@ const GSTVerificationPage = () => {
   
     // Extract only the valid keys for verification counts
     const keys = Object.keys(verificationCounts);
+
+    useEffect(() => {
+      const fetchVerifiedUsers = async () => {
+        try {
+          const response = await axios.get(
+            "http://localhost:5000/api/gst/verified"
+          );
+          setVerifiedUsers(response.data); // Set the fetched data into the state
+        } catch (error) {
+          console.error("Error fetching verified users:", error);
+        }
+      };
+      fetchVerifiedUsers();
+    },[]);
 
     useEffect(() => {
       const fetchVerificationCounts = async () => {
@@ -47,6 +63,32 @@ const GSTVerificationPage = () => {
   
       fetchVerificationCounts();
     }, []);
+
+    const handleExcelDownload = () => {
+      // Mapping the verified users data to the format required for Excel
+      const excelData = verifiedUsers.map((user, index) => ({
+        'SrNo': index + 1,  // You can adjust this if the `SrNo` is not directly available in the data
+        'GST No': user.verifiedData.data.gstin,
+        'PAN No': user.verifiedData.data.pan_number,
+        'Business Name': user.verifiedData.data.business_name,
+        'Date of Registration': user.verifiedData.data.date_of_registration,
+        'GST Status': user.verifiedData.data.gstin_status,
+        'Verification Date': user.formattedDate,
+      }));
+    
+      // Create a new workbook
+      const wb = XLSX.utils.book_new();
+      
+      // Convert excelData to a worksheet
+      const ws = XLSX.utils.json_to_sheet(excelData);
+    
+      // Append the worksheet to the workbook
+      XLSX.utils.book_append_sheet(wb, ws, "Verified Users");
+    
+      // Trigger the download of the Excel file
+      XLSX.writeFile(wb, "Verified_Users.xlsx");
+    };
+  
 
   const handleVerify = async () => {
     if (!idNumber) {
@@ -224,7 +266,7 @@ const inputStyle = {
         />
         <div className="buttons mt-3">
         {!isVerified &&<button style={styles.button} onClick={handleVerify} disabled={loading} >{loading ? 'Verifying...' : 'Verify'}</button>}
-            <button style={styles.button}>Excel Report</button>
+            <button type="button" style={styles.button} onClick={handleExcelDownload}>Excel Report</button>
             <button style={styles.button} onClick={() => setIdNumber("")}>Clear</button>
             <button style={styles.button}>Search</button>
           </div>

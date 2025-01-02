@@ -75,7 +75,7 @@ const Nav = () => {
         <div>
           <ul className="navbar-nav">
             <li className="nav-item active">
-              <a className="navbar-brand" href="https://avsinsotech.com/">
+              <a className="navbar-brand" href="#">
                 Bank Name
               </a>
             </li>

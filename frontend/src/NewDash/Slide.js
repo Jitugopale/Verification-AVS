@@ -176,16 +176,16 @@ const Slide = () => {
           </li>
 
           <li>
-            <Link to="main">Reports</Link>
+            <Link to="#">Password Change</Link>
           </li>
           <li>
-            <Link to="loan">My Services</Link>
+            <Link to="#">Branch User Create</Link>
           </li>
           <li>
-            <Link to="#">Settings</Link>
+            <Link to="#">Branch Create</Link>
           </li>
           <li>
-            <Link to="#">Funding</Link>
+            <Link to="#">User Branch Change</Link>
           </li>
           <li>
             <Link to="#">Onboarding Suit</Link>
